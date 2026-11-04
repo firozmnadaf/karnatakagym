@@ -9,7 +9,6 @@ import {
   Sparkles,
   ShieldAlert,
   ArrowRight,
-  UserCheck,
   Trash2,
   AlertTriangle
 } from 'lucide-react';
@@ -22,7 +21,6 @@ export default function OwnerRedList() {
     staff,
     plans,
     recordFollowUpOutcome,
-    changeAssignedMentor,
     removeMember,
     settings,
     runDailyNoShowScan
@@ -232,8 +230,8 @@ export default function OwnerRedList() {
                   </div>
                 </div>
 
-                {/* Middle Row: Last Check-In, Mentor, Latest Follow-Up */}
-                <div className="bg-[#0b0f17] p-3 rounded-lg border border-slate-800 text-xs text-slate-300 grid grid-cols-1 md:grid-cols-3 gap-2">
+                {/* Middle Row: Last Check-In, Latest Follow-Up */}
+                <div className="bg-[#0b0f17] p-3 rounded-lg border border-slate-800 text-xs text-slate-300 grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
                     <span className="text-slate-400 block text-[10px] uppercase font-bold">Last Check-In</span>
                     <strong className="text-white">
@@ -244,29 +242,6 @@ export default function OwnerRedList() {
                           })
                         : 'Never'}
                     </strong>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold flex items-center gap-1">
-                      <UserCheck className="w-3 h-3 text-orange-400" /> Assigned Mentor
-                    </span>
-                    <select
-                      value={member.assignedTrainerId || 'staff_1'}
-                      onChange={(e) => {
-                        const res = changeAssignedMentor(member.id, e.target.value);
-                        if (res.success) {
-                          setActionSuccessToast(res.message);
-                          setTimeout(() => setActionSuccessToast(null), 3000);
-                        }
-                      }}
-                      className="bg-slate-900 border border-slate-700 text-orange-400 font-bold rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-orange-500 max-w-[190px] truncate mt-0.5"
-                    >
-                      {staff.filter(s => s.role !== 'FRONT_DESK').map(t => (
-                        <option key={t.id} value={t.id}>
-                          Coach {t.name}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   <div>
