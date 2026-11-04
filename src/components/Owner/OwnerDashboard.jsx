@@ -8,6 +8,7 @@ import OwnerDailySummaryModal from './OwnerDailySummaryModal';
 import OwnerDataQualityAlerts from './OwnerDataQualityAlerts';
 import OwnerMemberList from './OwnerMemberList';
 import AddMemberModal from './AddMemberModal';
+import OwnerKpiDetailModal from './OwnerKpiDetailModal';
 import {
   Users,
   QrCode,
@@ -35,6 +36,7 @@ export default function OwnerDashboard() {
   const [activeOwnerTab, setActiveOwnerTab] = useState('redlist');
   const [showDailySummaryModal, setShowDailySummaryModal] = useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [selectedKpiModal, setSelectedKpiModal] = useState(null);
   const [thresholdInput, setThresholdInput] = useState(settings.noShowThresholdDays || 10);
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -104,10 +106,13 @@ export default function OwnerDashboard() {
         </div>
       </div>
 
-      {/* 8 KPI Cards Grid: 2 or 4 Columns (No 3 icon boxes in a row! No colored left borders!) */}
+      {/* 8 KPI Cards Grid: 2 or 4 Columns (Click any card to open dedicated info page!) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* 1. Active Members */}
-        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+        <div
+          onClick={() => setSelectedKpiModal('active_members')}
+          className="bg-[#111726] hover:bg-[#151c2e] border border-slate-800 hover:border-orange-500/80 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Active Members</span>
             <Users className="w-4 h-4 text-orange-400" />
@@ -119,10 +124,17 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-emerald-400 font-semibold mt-1">
             Hubli resident regulars
           </span>
+          <div className="text-[10px] text-orange-400 group-hover:text-orange-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/80">
+            <span>View Roster & Breakdown</span>
+            <span>→</span>
+          </div>
         </div>
 
         {/* 2. Today's Check-Ins */}
-        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+        <div
+          onClick={() => setSelectedKpiModal('today_checkins')}
+          className="bg-[#111726] hover:bg-[#151c2e] border border-slate-800 hover:border-emerald-500/80 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Today's Check-Ins</span>
             <QrCode className="w-4 h-4 text-emerald-400" />
@@ -134,10 +146,17 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-slate-400 mt-1">
             Turnstile and assisted
           </span>
+          <div className="text-[10px] text-emerald-400 group-hover:text-emerald-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/80">
+            <span>View Attendance Log</span>
+            <span>→</span>
+          </div>
         </div>
 
         {/* 3. 7-Day Active Members */}
-        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+        <div
+          onClick={() => setSelectedKpiModal('seven_day_active')}
+          className="bg-[#111726] hover:bg-[#151c2e] border border-slate-800 hover:border-cyan-500/80 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">7-Day Active</span>
             <Calendar className="w-4 h-4 text-cyan-400" />
@@ -149,10 +168,17 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-cyan-300 font-semibold mt-1">
             {Math.round((sevenDayActiveMemberIds.size / (activeMembers.length || 1)) * 100)}% weekly retention
           </span>
+          <div className="text-[10px] text-cyan-400 group-hover:text-cyan-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/80">
+            <span>View Retention Radar</span>
+            <span>→</span>
+          </div>
         </div>
 
-        {/* 4. Open No-Show Cases (Uniform 1px border, no colored left bar!) */}
-        <div className="bg-[#19141f] border border-rose-700 p-4 rounded-xl flex flex-col justify-between">
+        {/* 4. Open No-Show Cases */}
+        <div
+          onClick={() => setSelectedKpiModal('open_churn_risks')}
+          className="bg-[#19141f] hover:bg-[#201524] border border-rose-700 hover:border-rose-500 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-rose-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Open Churn Risks</span>
             <AlertTriangle className="w-4 h-4 text-rose-400" />
@@ -164,10 +190,17 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-rose-300 font-semibold mt-1">
             Action required on Red-List
           </span>
+          <div className="text-[10px] text-rose-400 group-hover:text-rose-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-rose-900/80">
+            <span>Intervene & Call</span>
+            <span>→</span>
+          </div>
         </div>
 
         {/* 5. Returned Members */}
-        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+        <div
+          onClick={() => setSelectedKpiModal('returned_members')}
+          className="bg-[#111726] hover:bg-[#151c2e] border border-slate-800 hover:border-emerald-500/80 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Returned Members</span>
             <RotateCcw className="w-4 h-4 text-emerald-400" />
@@ -179,10 +212,17 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-emerald-400 font-semibold mt-1">
             Auto-resolved by turnstile
           </span>
+          <div className="text-[10px] text-emerald-400 group-hover:text-emerald-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/80">
+            <span>View Recovery Stats</span>
+            <span>→</span>
+          </div>
         </div>
 
         {/* 6. Renewals Due */}
-        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+        <div
+          onClick={() => setSelectedKpiModal('renewals_due')}
+          className="bg-[#111726] hover:bg-[#151c2e] border border-slate-800 hover:border-amber-500/80 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Renewals Due (7d)</span>
             <Clock className="w-4 h-4 text-amber-400" />
@@ -194,10 +234,17 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-amber-400 font-semibold mt-1">
             Expiring this week
           </span>
+          <div className="text-[10px] text-amber-400 group-hover:text-amber-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/80">
+            <span>View Expiring Passes</span>
+            <span>→</span>
+          </div>
         </div>
 
         {/* 7. Renewal Collection */}
-        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+        <div
+          onClick={() => setSelectedKpiModal('renewal_revenue')}
+          className="bg-[#111726] hover:bg-[#151c2e] border border-slate-800 hover:border-emerald-500/80 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Renewal Revenue</span>
             <IndianRupee className="w-4 h-4 text-emerald-400" />
@@ -208,10 +255,17 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-slate-400 mt-1">
             Verified provider receipts
           </span>
+          <div className="text-[10px] text-emerald-400 group-hover:text-emerald-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/80">
+            <span>Audit UPI Receipts</span>
+            <span>→</span>
+          </div>
         </div>
 
         {/* 8. Add-On Revenue */}
-        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+        <div
+          onClick={() => setSelectedKpiModal('addon_revenue')}
+          className="bg-[#111726] hover:bg-[#151c2e] border border-slate-800 hover:border-purple-500/80 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-colors group"
+        >
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Add-On Revenue</span>
             <ShoppingBag className="w-4 h-4 text-purple-400" />
@@ -222,6 +276,10 @@ export default function OwnerDashboard() {
           <span className="text-[11px] text-purple-400 font-semibold mt-1">
             PT & Whey Protein sales
           </span>
+          <div className="text-[10px] text-purple-400 group-hover:text-purple-300 font-bold flex items-center justify-between mt-2 pt-1.5 border-t border-slate-800/80">
+            <span>View Marketplace Orders</span>
+            <span>→</span>
+          </div>
         </div>
       </div>
 
@@ -347,6 +405,18 @@ export default function OwnerDashboard() {
         isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
       />
+
+      {/* Dedicated Executive KPI Detail Info Modal */}
+      {selectedKpiModal && (
+        <OwnerKpiDetailModal
+          initialKpi={selectedKpiModal}
+          onClose={() => setSelectedKpiModal(null)}
+          onNavigateTab={(tab) => {
+            setActiveOwnerTab(tab);
+            setSelectedKpiModal(null);
+          }}
+        />
+      )}
     </div>
   );
 }
