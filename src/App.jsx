@@ -14,6 +14,23 @@ import { Wifi, Battery, Signal } from 'lucide-react';
 function MainAppContent() {
   const { currentRole, setCurrentRole, viewMode } = useGym();
 
+  React.useEffect(() => {
+    const handleHash = () => {
+      const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
+      if (!rawHash) return;
+      const validRoles = ['member', 'owner', 'frontdesk', 'automations', 'testing', 'database'];
+      if (validRoles.includes(rawHash)) {
+        setCurrentRole(rawHash);
+      } else {
+        // Any unknown path or route shows true 404 error page!
+        setCurrentRole('notfound');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [setCurrentRole]);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#0b0f17] text-slate-100 font-sans selection:bg-orange-600 selection:text-white overflow-x-hidden">
       {/* Global Header */}

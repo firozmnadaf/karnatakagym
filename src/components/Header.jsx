@@ -266,18 +266,6 @@ export default function Header() {
             >
               14 Data Tables
             </button>
-
-            <button
-              type="button"
-              onClick={() => handleNavSelect('notfound')}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
-                currentRole === 'notfound'
-                  ? 'bg-rose-700 text-white'
-                  : 'bg-[#111726] text-slate-400 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              404 Page
-            </button>
           </nav>
 
           {/* Quick Member Persona Switcher */}
@@ -330,8 +318,7 @@ export default function Header() {
               { id: 'frontdesk', label: 'Front-Desk Desk' },
               { id: 'automations', label: 'Automations Engine' },
               { id: 'testing', label: '11-Point Tests' },
-              { id: 'database', label: '14 Database Tables' },
-              { id: 'notfound', label: 'Custom 404 View' }
+              { id: 'database', label: '14 Database Tables' }
             ].map(item => (
               <button
                 key={item.id}

@@ -17,13 +17,9 @@ export default function NotFound({ onGoHome }) {
   return (
     <div className="min-h-[520px] flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-[#111726] border border-slate-800 rounded-2xl p-6 md:p-8 text-center space-y-5 shadow-xl">
-        <div className="inline-block px-3 py-1 rounded bg-slate-800 text-orange-400 font-mono text-xs font-bold uppercase tracking-wider">
-          Error 404
-        </div>
-
         <div className="space-y-2">
           <h2 className="text-2xl font-extrabold text-white">
-            Page Not Found
+            404 - Page Not Found
           </h2>
           <p className="text-sm text-slate-300 leading-relaxed">
             The member route, turnstile session, or administrative screen you requested could not be located in the Karnataka Gym records.
@@ -65,3 +61,4 @@ export default function NotFound({ onGoHome }) {
     </div>
   );
 }
+

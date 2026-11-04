@@ -795,6 +795,156 @@ export const GymProvider = ({ children }) => {
     logAudit('SETTINGS_UPDATED', `Gym operating settings updated: ${JSON.stringify(newSettings)}`, 'staff_1', 'OWNER');
   };
 
+  // Add a New Member
+  const addMember = (memberData) => {
+    const newId = 'mem_' + Date.now();
+    const joinedDate = memberData.joinedDate || new Date().toISOString().split('T')[0];
+    const plan = plans.find(p => p.id === memberData.planId) || plans[0];
+
+    let expiry = memberData.membershipExpiry;
+    if (!expiry) {
+      const d = new Date();
+      d.setDate(d.getDate() + (plan.durationDays || 30));
+      expiry = d.toISOString().split('T')[0];
+    }
+
+    const defaultAvatar = memberData.gender === 'Female'
+      ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&auto=format&fit=crop&q=75'
+      : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&auto=format&fit=crop&q=75';
+
+    const newMember = {
+      id: newId,
+      name: memberData.name.trim(),
+      phone: memberData.phone.trim(),
+      gender: memberData.gender || 'Male',
+      avatar: memberData.avatar || defaultAvatar,
+      emergencyContact: memberData.emergencyContact ? memberData.emergencyContact.trim() : '+91 96633 96058 (Gym Desk)',
+      joinedDate,
+      preferredSlot: memberData.preferredSlot || 'Morning 6-8 AM',
+      assignedTrainerId: memberData.assignedTrainerId || 'staff_1',
+      status: 'active',
+      planId: plan.id,
+      membershipExpiry: expiry,
+      lastCheckIn: null,
+      commPreferences: { whatsapp: true, sms: true, reminders: true, marketingOptOut: false },
+      notes: memberData.notes ? memberData.notes.trim() : 'Newly registered Hubli resident regular.'
+    };
+
+    setMembers(prev => [newMember, ...prev]);
+
+    // Initialize Fair Streak record for new member
+    setStreaks(prev => ({
+      ...prev,
+      [newId]: {
+        memberId: newId,
+        currentStreakDays: 0,
+        bestStreakDays: 0,
+        weeklyGoalDays: 4,
+        weeklyVisitsCompleted: 0,
+        plannedDays: ['Mon', 'Wed', 'Fri', 'Sat'],
+        isFairStreakPreserved: true,
+        streakHistory: ['Joined Karnataka Gym Hubli - Welcome!']
+      }
+    }));
+
+    const trainer = staff.find(s => s.id === newMember.assignedTrainerId);
+    logAudit(
+      'MEMBER_CREATED',
+      `Registered new member ${newMember.name} (${newMember.phone}) on ${plan.name} pass. Assigned Mentor: Coach ${trainer ? trainer.name : 'Floor Trainer'}. Expiry: ${expiry}.`,
+      'staff_1',
+      'OWNER'
+    );
+
+    playSuccessBeep();
+    return { success: true, member: newMember, message: `Member ${newMember.name} registered successfully!` };
+  };
+
+  // Remove a Member
+  const removeMember = (memberId, reason = 'Administrative removal') => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) {
+      playErrorBuzzer();
+      return { success: false, message: 'Member not found.' };
+    }
+
+    setMembers(prev => prev.filter(m => m.id !== memberId));
+
+    // Close any open no-show cases for this member
+    setNoShowCases(prev => prev.map(c => {
+      if (c.memberId === memberId && c.status === 'OPEN') {
+        return {
+          ...c,
+          status: 'CLOSED_CANCELLED',
+          historyNotes: `Case closed: Member profile removed (${reason})`
+        };
+      }
+      return c;
+    }));
+
+    // If activeMemberId was this member, fall back to another existing member
+    if (activeMemberId === memberId) {
+      const remaining = members.filter(m => m.id !== memberId);
+      if (remaining.length > 0) {
+        setActiveMemberId(remaining[0].id);
+      }
+    }
+
+    logAudit(
+      'MEMBER_REMOVED',
+      `Member ${member.name} (ID: ${member.id}, Phone: ${member.phone}) removed from Karnataka Gym records. Reason: "${reason}".`,
+      'staff_1',
+      'OWNER'
+    );
+
+    playTone(440, 0.15);
+    return { success: true, message: `Member ${member.name} was removed from records.` };
+  };
+
+  // Change Assigned Mentor
+  const changeAssignedMentor = (memberId, newTrainerId) => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) {
+      playErrorBuzzer();
+      return { success: false, message: 'Member not found.' };
+    }
+
+    const newTrainer = staff.find(s => s.id === newTrainerId);
+    if (!newTrainer) {
+      playErrorBuzzer();
+      return { success: false, message: 'Trainer not found.' };
+    }
+
+    const oldTrainer = staff.find(s => s.id === member.assignedTrainerId);
+
+    setMembers(prev => prev.map(m => {
+      if (m.id === memberId) {
+        return { ...m, assignedTrainerId: newTrainerId };
+      }
+      return m;
+    }));
+
+    setNoShowCases(prev => prev.map(c => {
+      if (c.memberId === memberId) {
+        return { ...c, assignedTrainerId: newTrainerId };
+      }
+      return c;
+    }));
+
+    logAudit(
+      'MENTOR_REASSIGNED',
+      `Assigned mentor for ${member.name} changed from Coach ${oldTrainer ? oldTrainer.name : 'None'} to Coach ${newTrainer.name} (${newTrainer.specialization}).`,
+      'staff_1',
+      'OWNER'
+    );
+
+    playSuccessBeep();
+    return {
+      success: true,
+      trainer: newTrainer,
+      message: `Assigned mentor updated to Coach ${newTrainer.name} for ${member.name}.`
+    };
+  };
+
   // ----------------------------------------------------
   // AUTOMATIONS ENGINE (The 6 Required System Automations)
   // ----------------------------------------------------
@@ -1092,6 +1242,9 @@ export const GymProvider = ({ children }) => {
     replayOfflineQueue,
 
     // Operations
+    addMember,
+    removeMember,
+    changeAssignedMentor,
     processCheckIn,
     processMembershipRenewal,
     processRefund,

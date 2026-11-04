@@ -8,7 +8,10 @@ import {
   Clock,
   Sparkles,
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  UserCheck,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function OwnerRedList() {
@@ -19,11 +22,15 @@ export default function OwnerRedList() {
     staff,
     plans,
     recordFollowUpOutcome,
+    changeAssignedMentor,
+    removeMember,
     settings,
     runDailyNoShowScan
   } = useGym();
 
   const [selectedCase, setSelectedCase] = useState(null);
+  const [memberToRemove, setMemberToRemove] = useState(null);
+  const [removalReason, setRemovalReason] = useState('Prolonged churn / Member request');
   const [outcomeForm, setOutcomeForm] = useState({
     channel: 'CALL',
     outcome: 'Will return',
@@ -240,8 +247,26 @@ export default function OwnerRedList() {
                   </div>
 
                   <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Assigned Mentor</span>
-                    <strong className="text-orange-400">{trainer ? trainer.name : 'General Floor'}</strong>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold flex items-center gap-1">
+                      <UserCheck className="w-3 h-3 text-orange-400" /> Assigned Mentor
+                    </span>
+                    <select
+                      value={member.assignedTrainerId || 'staff_1'}
+                      onChange={(e) => {
+                        const res = changeAssignedMentor(member.id, e.target.value);
+                        if (res.success) {
+                          setActionSuccessToast(res.message);
+                          setTimeout(() => setActionSuccessToast(null), 3000);
+                        }
+                      }}
+                      className="bg-slate-900 border border-slate-700 text-orange-400 font-bold rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-orange-500 max-w-[190px] truncate mt-0.5"
+                    >
+                      {staff.filter(s => s.role !== 'FRONT_DESK').map(t => (
+                        <option key={t.id} value={t.id}>
+                          Coach {t.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
@@ -292,6 +317,16 @@ export default function OwnerRedList() {
                     >
                       <span>Mark Outcome</span>
                       <ArrowRight className="w-3 h-3" />
+                    </button>
+
+                    {/* Remove Member Trigger */}
+                    <button
+                      type="button"
+                      onClick={() => setMemberToRemove(member)}
+                      className="bg-slate-900 hover:bg-rose-950 text-slate-400 hover:text-rose-300 border border-slate-800 hover:border-rose-800 p-2 rounded-xl text-xs font-bold transition-colors"
+                      title="Remove member profile"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-rose-400" />
                     </button>
                   </div>
                 </div>
@@ -408,6 +443,67 @@ export default function OwnerRedList() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Member Confirmation Modal */}
+      {memberToRemove && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111726] border border-rose-800/80 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl text-xs text-slate-100">
+            <div className="flex items-center gap-2 text-rose-400">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              <h4 className="text-base font-extrabold text-white">Remove Member Profile</h4>
+            </div>
+
+            <div className="bg-[#0b0f17] p-3 rounded-xl border border-slate-800 space-y-1">
+              <div className="font-bold text-white text-sm">{memberToRemove.name}</div>
+              <div className="text-slate-300 font-mono">{memberToRemove.phone}</div>
+              <div className="text-slate-400">Member ID: {memberToRemove.id}</div>
+            </div>
+
+            <p className="text-slate-300">
+              Are you sure you want to remove this member from Karnataka Gym records? This will delete their profile and close any open churn cases.
+            </p>
+
+            <div>
+              <label className="block text-slate-300 font-bold mb-1">Reason for Removal:</label>
+              <select
+                value={removalReason}
+                onChange={(e) => setRemovalReason(e.target.value)}
+                className="w-full bg-[#0b0f17] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+              >
+                <option value="Prolonged churn / Discontinued">Prolonged churn / Discontinued</option>
+                <option value="Relocated away from Hubli">Relocated away from Hubli</option>
+                <option value="Requested profile removal">Requested profile removal</option>
+                <option value="Medical condition / Inactive">Medical condition / Inactive</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setMemberToRemove(null)}
+                className="px-4 py-2 rounded-xl text-slate-300 hover:text-white bg-slate-900 border border-slate-700 font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const res = removeMember(memberToRemove.id, removalReason);
+                  if (res.success) {
+                    setActionSuccessToast(res.message);
+                    setTimeout(() => setActionSuccessToast(null), 3000);
+                  }
+                  setMemberToRemove(null);
+                }}
+                className="px-4 py-2 rounded-xl text-white bg-rose-700 hover:bg-rose-600 font-bold flex items-center gap-1.5 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Confirm Removal</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

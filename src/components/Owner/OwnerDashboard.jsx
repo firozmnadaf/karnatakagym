@@ -6,6 +6,8 @@ import OwnerInventoryAddons from './OwnerInventoryAddons';
 import OwnerPauseManager from './OwnerPauseManager';
 import OwnerDailySummaryModal from './OwnerDailySummaryModal';
 import OwnerDataQualityAlerts from './OwnerDataQualityAlerts';
+import OwnerMemberList from './OwnerMemberList';
+import AddMemberModal from './AddMemberModal';
 import {
   Users,
   QrCode,
@@ -16,7 +18,8 @@ import {
   IndianRupee,
   ShoppingBag,
   Sliders,
-  FileText
+  FileText,
+  UserPlus
 } from 'lucide-react';
 
 export default function OwnerDashboard() {
@@ -31,6 +34,7 @@ export default function OwnerDashboard() {
 
   const [activeOwnerTab, setActiveOwnerTab] = useState('redlist');
   const [showDailySummaryModal, setShowDailySummaryModal] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [thresholdInput, setThresholdInput] = useState(settings.noShowThresholdDays || 10);
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -79,14 +83,25 @@ export default function OwnerDashboard() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowDailySummaryModal(true)}
-          className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shrink-0"
-        >
-          <FileText className="w-4 h-4" />
-          <span>Generate Daily EOD Summary</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsAddMemberModalOpen(true)}
+            className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shadow-lg shadow-orange-950/40"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Add Member</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowDailySummaryModal(true)}
+            className="bg-slate-800 hover:bg-slate-700 active:bg-slate-900 border border-slate-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Generate Daily EOD Summary</span>
+          </button>
+        </div>
       </div>
 
       {/* 8 KPI Cards Grid: 2 or 4 Columns (No 3 icon boxes in a row! No colored left borders!) */}
@@ -241,6 +256,18 @@ export default function OwnerDashboard() {
       <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
         <button
           type="button"
+          onClick={() => setActiveOwnerTab('members')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
+            activeOwnerTab === 'members'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
+          }`}
+        >
+          Manage Members ({members.length})
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveOwnerTab('redlist')}
           className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'redlist'
@@ -302,6 +329,7 @@ export default function OwnerDashboard() {
 
       {/* Active Tab View */}
       <div className="pt-1">
+        {activeOwnerTab === 'members' && <OwnerMemberList />}
         {activeOwnerTab === 'redlist' && <OwnerRedList />}
         {activeOwnerTab === 'renewals' && <OwnerRenewalPipeline />}
         {activeOwnerTab === 'inventory' && <OwnerInventoryAddons />}
@@ -313,6 +341,12 @@ export default function OwnerDashboard() {
       {showDailySummaryModal && (
         <OwnerDailySummaryModal onClose={() => setShowDailySummaryModal(false)} />
       )}
+
+      {/* Add Member Modal */}
+      <AddMemberModal
+        isOpen={isAddMemberModalOpen}
+        onClose={() => setIsAddMemberModalOpen(false)}
+      />
     </div>
   );
 }
