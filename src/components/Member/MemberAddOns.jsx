@@ -9,9 +9,11 @@ import {
   AlertOctagon,
   ArrowLeft,
   Shield,
-  Info
+  Info,
+  X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import UPIPaymentCheckout from '../Common/UPIPaymentCheckout';
 
 export default function MemberAddOns({ onBack }) {
   const {
@@ -23,34 +25,37 @@ export default function MemberAddOns({ onBack }) {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [purchaseResult, setPurchaseResult] = useState(null);
   const [buyingId, setBuyingId] = useState(null);
+  const [selectedItemForUpi, setSelectedItemForUpi] = useState(null);
+  const [isProcessingUpi, setIsProcessingUpi] = useState(false);
 
   const filteredItems = addOns.filter(item => {
     if (activeCategory === 'ALL') return true;
     return item.category === activeCategory;
   });
 
-  const handlePurchase = (item) => {
-    setBuyingId(item.id);
-    setPurchaseResult(null);
+  const handleConfirmUpiPurchase = (item, utr) => {
+    setIsProcessingUpi(true);
 
     setTimeout(() => {
-      setBuyingId(null);
+      setIsProcessingUpi(false);
       const res = purchaseAddOn({
         memberId: activeMember.id,
         addOnId: item.id,
-        quantity: 1
+        quantity: 1,
+        gatewayReference: utr
       });
 
       setPurchaseResult(res);
+      setSelectedItemForUpi(null);
 
       if (res.success) {
         confetti({
-          particleCount: 40,
-          spread: 60,
-          origin: { y: 0.7 }
+          particleCount: 50,
+          spread: 70,
+          origin: { y: 0.6 }
         });
       }
-    }, 600);
+    }, 800);
   };
 
   return (
@@ -198,15 +203,15 @@ export default function MemberAddOns({ onBack }) {
                 {/* Buy Button (Solid colors, no gradient text, no hover opacity fades) */}
                 <button
                   type="button"
-                  onClick={() => handlePurchase(item)}
-                  disabled={isOutOfStock || isBuying}
+                  onClick={() => setSelectedItemForUpi(item)}
+                  disabled={isOutOfStock}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
                     isOutOfStock
                       ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                      : 'bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white'
+                      : 'bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white shadow-md'
                   }`}
                 >
-                  {isOutOfStock ? 'Sold Out' : isBuying ? 'Processing...' : `Purchase for ₹${item.price.toLocaleString('en-IN')}`}
+                  {isOutOfStock ? 'Sold Out' : `Pay ₹${item.price.toLocaleString('en-IN')} via UPI`}
                 </button>
               </div>
 
@@ -218,6 +223,35 @@ export default function MemberAddOns({ onBack }) {
           );
         })}
       </div>
+
+      {/* UPI Payment Modal for Add-On Item */}
+      {selectedItemForUpi && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 md:p-4 overflow-y-auto">
+          <div className="max-w-md w-full bg-[#111726] border border-slate-700 rounded-2xl p-4 md:p-5 space-y-3 shadow-2xl my-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div>
+                <h4 className="text-sm font-extrabold text-white">UPI Payment Checkout</h4>
+                <p className="text-[11px] text-slate-400">{selectedItemForUpi.title}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedItemForUpi(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <UPIPaymentCheckout
+              amount={selectedItemForUpi.price}
+              title={selectedItemForUpi.title}
+              description={`Karnataka Gym Add-On purchase for ${activeMember.name}`}
+              onConfirmPayment={(paymentData) => handleConfirmUpiPurchase(selectedItemForUpi, paymentData.utr)}
+              isProcessing={isProcessingUpi}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

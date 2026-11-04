@@ -8,9 +8,11 @@ import {
   AlertTriangle,
   RotateCcw,
   Percent,
-  Check
+  Check,
+  CreditCard
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import UPIPaymentCheckout from '../Common/UPIPaymentCheckout';
 
 export default function MemberRenewal({ onBack }) {
   const {
@@ -35,6 +37,33 @@ export default function MemberRenewal({ onBack }) {
   const isExpiringSoon = diffDays >= 0 && diffDays <= 7;
   const isExpired = diffDays < 0;
 
+  const handleConfirmUpiPayment = ({ utr, amount, upiId }) => {
+    setIsProcessing(true);
+    setPaymentState('PENDING');
+
+    setTimeout(() => {
+      setIsProcessing(false);
+      const res = processMembershipRenewal({
+        memberId: activeMember.id,
+        planId: selectedPlan.id,
+        paymentMethod: 'UPI',
+        simulateStatus: 'PAID',
+        gatewayReference: utr
+      });
+
+      setPaymentState('PAID');
+      setPaymentResult(res);
+
+      if (res.success) {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.5 }
+        });
+      }
+    }, 900);
+  };
+
   const handleSimulatePayment = (forcedStatus = 'PAID') => {
     setIsProcessing(true);
     setPaymentState('PENDING');
@@ -58,7 +87,7 @@ export default function MemberRenewal({ onBack }) {
           origin: { y: 0.5 }
         });
       }
-    }, 1100);
+    }, 900);
   };
 
   return (
@@ -194,7 +223,7 @@ export default function MemberRenewal({ onBack }) {
       {/* Payment Method Selector */}
       <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl space-y-2">
         <label className="text-xs font-bold text-slate-200 uppercase tracking-wider block">
-          Payment Method (Simulated Provider)
+          Select Payment Method
         </label>
         <div className="grid grid-cols-3 gap-2 text-xs font-bold">
           {['UPI', 'CARD', 'NETBANKING'].map(method => (
@@ -208,11 +237,44 @@ export default function MemberRenewal({ onBack }) {
                   : 'bg-slate-900 text-slate-300 border-slate-800 hover:text-white'
               }`}
             >
-              {method === 'UPI' ? 'UPI (GPay / PhonePe)' : method === 'CARD' ? 'Debit / Card' : 'NetBanking'}
+              {method === 'UPI' ? 'UPI (feroznadaf13008@ybl)' : method === 'CARD' ? 'Debit / Card' : 'NetBanking'}
             </button>
           ))}
         </div>
       </div>
+
+      {/* UPI Checkout Screen when UPI is selected */}
+      {paymentMethod === 'UPI' && (
+        <UPIPaymentCheckout
+          amount={selectedPlan.discountPrice}
+          title={`${selectedPlan.name} Renewal`}
+          description={`Karnataka Gym pass extension for ${activeMember.name}`}
+          onConfirmPayment={handleConfirmUpiPayment}
+          isProcessing={isProcessing}
+        />
+      )}
+
+      {/* Alternative Card / NetBanking Form when not UPI */}
+      {paymentMethod !== 'UPI' && (
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl space-y-3">
+          <div className="flex items-center gap-2 text-slate-200 font-bold text-xs">
+            <CreditCard className="w-4 h-4 text-orange-400" />
+            <span>Simulated Gateway: {paymentMethod === 'CARD' ? 'Debit/Credit Card Gateway' : 'NetBanking Terminal'}</span>
+          </div>
+          <p className="text-xs text-slate-400">
+            Click below to simulate {paymentMethod} payment for ₹{selectedPlan.discountPrice.toLocaleString('en-IN')}.
+          </p>
+          <button
+            type="button"
+            onClick={() => handleSimulatePayment('PAID')}
+            disabled={isProcessing}
+            className="w-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-sm"
+          >
+            <ShieldCheck className="w-5 h-5" />
+            <span>Pay ₹{selectedPlan.discountPrice.toLocaleString('en-IN')} via {paymentMethod}</span>
+          </button>
+        </div>
+      )}
 
       {/* Payment Processing Feedback States */}
       {paymentState && (
@@ -221,8 +283,8 @@ export default function MemberRenewal({ onBack }) {
             <div className="bg-[#0f1f2e] border border-blue-500 p-4 rounded-xl flex items-center gap-3">
               <RotateCcw className="w-5 h-5 text-blue-400 animate-spin" />
               <div className="text-xs">
-                <span className="font-bold text-blue-300 block">Connecting to Payment Provider...</span>
-                <span className="text-slate-300">Verifying signature and idempotency token. Membership will not be extended until verified.</span>
+                <span className="font-bold text-blue-300 block">Verifying with UPI Payment Gateway...</span>
+                <span className="text-slate-300">Matching transaction reference with feroznadaf13008@ybl. Membership will not be extended until verified.</span>
               </div>
             </div>
           )}
@@ -239,8 +301,9 @@ export default function MemberRenewal({ onBack }) {
                 </div>
               </div>
               {paymentResult.payment && (
-                <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-slate-200 flex justify-between items-center border border-slate-800 mt-2">
+                <div className="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-slate-200 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-1 border border-slate-800 mt-2">
                   <span>Receipt: {paymentResult.payment.receiptNumber}</span>
+                  <span className="text-slate-300">VPA: feroznadaf13008@ybl</span>
                   <span className="text-emerald-400 font-bold">₹{paymentResult.payment.amount} PAID</span>
                 </div>
               )}
@@ -262,25 +325,15 @@ export default function MemberRenewal({ onBack }) {
         </div>
       )}
 
-      {/* Main Payment Action Buttons (Solid colors, no gradient text, no hover opacity fades) */}
-      <div className="space-y-2 pt-2">
-        <button
-          type="button"
-          onClick={() => handleSimulatePayment('PAID')}
-          disabled={isProcessing}
-          className="w-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-sm"
-        >
-          <ShieldCheck className="w-5 h-5" />
-          <span>Pay ₹{selectedPlan.discountPrice.toLocaleString('en-IN')} and Extend Pass</span>
-        </button>
-
+      {/* Test Bank Failure Scenario (Requirement Safety Test) */}
+      <div className="pt-2">
         <button
           type="button"
           onClick={() => handleSimulatePayment('FAILED')}
           disabled={isProcessing}
-          className="w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-950 border border-slate-800 text-slate-300 py-2 px-3 rounded-xl text-xs font-semibold transition-colors"
+          className="w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200 py-2 px-3 rounded-xl text-xs font-semibold transition-colors"
         >
-          Test Bank Failure Scenario (Membership Not Extended)
+          Simulate Bank / Gateway Failure (Verifies Membership Is NOT Extended)
         </button>
       </div>
     </div>

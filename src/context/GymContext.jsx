@@ -424,7 +424,8 @@ export const GymProvider = ({ children }) => {
     planId,
     paymentMethod = 'UPI',
     simulateStatus = 'PAID', // 'PAID' | 'FAILED' | 'PENDING'
-    idempotencyKey = null
+    idempotencyKey = null,
+    gatewayReference = null
   }) => {
     const member = members.find(m => m.id === memberId);
     const plan = plans.find(p => p.id === planId);
@@ -483,7 +484,7 @@ export const GymProvider = ({ children }) => {
         amount: plan.discountPrice,
         currency: 'INR',
         method: paymentMethod,
-        gatewayReference: 'upi_hubli_' + Math.random().toString(36).substring(2, 10),
+        gatewayReference: gatewayReference || ('upi_ybl_' + Math.floor(100000000000 + Math.random() * 900000000000)),
         status: 'PAID',
         verifiedAt: new Date().toISOString(),
         receiptNumber: receiptNum,
@@ -564,7 +565,7 @@ export const GymProvider = ({ children }) => {
   // ----------------------------------------------------
   // ADD-ON MARKETPLACE PURCHASE (Zero pre-selection, Stock verification)
   // ----------------------------------------------------
-  const purchaseAddOn = ({ memberId, addOnId, quantity = 1 }) => {
+  const purchaseAddOn = ({ memberId, addOnId, quantity = 1, gatewayReference = null }) => {
     const member = members.find(m => m.id === memberId);
     const item = addOns.find(a => a.id === addOnId);
 
@@ -617,7 +618,7 @@ export const GymProvider = ({ children }) => {
       amount: totalAmount,
       currency: 'INR',
       method: 'UPI',
-      gatewayReference: 'upi_addon_' + Math.random().toString(36).substring(2, 9),
+      gatewayReference: gatewayReference || ('upi_ybl_' + Math.floor(100000000000 + Math.random() * 900000000000)),
       status: 'PAID',
       verifiedAt: new Date().toISOString(),
       receiptNumber: 'KG-ADD-' + Math.floor(1000 + Math.random() * 9000),
