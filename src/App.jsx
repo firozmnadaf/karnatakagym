@@ -9,6 +9,7 @@ import AutomationsCenter from './components/Automations/AutomationsCenter';
 import TestSuiteModal from './components/Testing/TestSuiteModal';
 import DatabaseExplorer from './components/Database/DatabaseExplorer';
 import NotFound from './components/NotFound';
+import PWAInstallNotification from './components/Common/PWAInstallNotification';
 import { Wifi, Battery, Signal } from 'lucide-react';
 
 function MainAppContent() {
@@ -85,6 +86,9 @@ function MainAppContent() {
 
       {/* Official Global Footer */}
       <Footer />
+
+      {/* Dynamic PWA Mobile Install Notification for Web Visitors */}
+      <PWAInstallNotification />
     </div>
   );
 }
