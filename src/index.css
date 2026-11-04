@@ -2,37 +2,53 @@
 
 @layer base {
   :root {
-    --bg-dark: #0a0d14;
+    --bg-dark: #0b0f17;
     --card-dark: #111726;
-    --accent-orange: #ff5e14;
-    --accent-cyan: #00d2ff;
-    --accent-green: #10b981;
+    --card-border: #1e293b;
+    --accent-orange: #ea580c;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
-    background-color: #080b11;
-    color: #f3f4f6;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #0b0f17;
+    color: #f8fafc;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   #root {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* Prevent text selection highlight issues */
+  ::selection {
+    background-color: #ea580c;
+    color: #ffffff;
   }
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars with high contrast */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #0b0f17;
 }
 ::-webkit-scrollbar-thumb {
   background: #334155;
@@ -42,35 +58,22 @@
   background: #475569;
 }
 
-/* QR Scanner Laser Animation */
+/* Scanner Laser Animation - clean single line */
 @keyframes scanLaser {
   0% {
-    top: 5%;
-    opacity: 0.8;
+    top: 6%;
+    opacity: 0.9;
   }
   50% {
-    top: 90%;
+    top: 92%;
     opacity: 1;
   }
   100% {
-    top: 5%;
-    opacity: 0.8;
+    top: 6%;
+    opacity: 0.9;
   }
 }
 
 .animate-scan {
-  animation: scanLaser 2s infinite ease-in-out;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(255, 94, 20, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 28px rgba(255, 94, 20, 0.7);
-  }
-}
-
-.pulse-glow {
-  animation: pulseGlow 2.5s infinite ease-in-out;
+  animation: scanLaser 2.2s infinite ease-in-out;
 }

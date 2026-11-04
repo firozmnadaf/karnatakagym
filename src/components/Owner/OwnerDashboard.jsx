@@ -16,12 +16,7 @@ import {
   IndianRupee,
   ShoppingBag,
   Sliders,
-  FileText,
-  ShieldCheck,
-  Package,
-  Coffee,
-  Sparkles,
-  ArrowRight
+  FileText
 } from 'lucide-react';
 
 export default function OwnerDashboard() {
@@ -31,20 +26,17 @@ export default function OwnerDashboard() {
     noShowCases,
     payments,
     settings,
-    updateSettings,
-    runDailyNoShowScan
+    updateSettings
   } = useGym();
 
-  const [activeOwnerTab, setActiveOwnerTab] = useState('redlist'); // 'redlist' | 'renewals' | 'inventory' | 'pauses' | 'quality'
+  const [activeOwnerTab, setActiveOwnerTab] = useState('redlist');
   const [showDailySummaryModal, setShowDailySummaryModal] = useState(false);
   const [thresholdInput, setThresholdInput] = useState(settings.noShowThresholdDays || 10);
 
-  // Calculate the 8 Required Owner KPI Cards
   const todayStr = new Date().toISOString().split('T')[0];
   const activeMembers = members.filter(m => m.status === 'active');
   const todayCheckIns = attendance.filter(a => a.checkInTime.startsWith(todayStr));
 
-  // 7-day active members (unique members who checked in over last 7 days)
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
   const sevenDayActiveMemberIds = new Set(
     attendance
@@ -55,14 +47,12 @@ export default function OwnerDashboard() {
   const openNoShowCases = noShowCases.filter(c => c.status === 'OPEN');
   const returnedMembers = noShowCases.filter(c => c.status === 'RESOLVED_RETURNED');
 
-  // Renewals due within 7 days
   const renewalsDueList = members.filter(m => {
     if (m.status !== 'active') return false;
     const diff = Math.ceil((new Date(m.membershipExpiry) - new Date()) / (1000 * 60 * 60 * 24));
     return diff >= 0 && diff <= 7;
   });
 
-  // Financial collections
   const renewalCollection = payments
     .filter(p => p.status === 'PAID' && p.orderId.startsWith('ord_ren_'))
     .reduce((sum, p) => sum + p.amount, 0);
@@ -71,48 +61,39 @@ export default function OwnerDashboard() {
     .filter(p => p.status === 'PAID' && p.orderId.startsWith('ord_add_'))
     .reduce((sum, p) => sum + p.amount, 0);
 
-  // Handle threshold change
   const handleThresholdUpdate = (val) => {
     setThresholdInput(val);
     updateSettings({ noShowThresholdDays: parseInt(val, 10) });
   };
 
   return (
-    <div className="space-y-5 pb-8 max-w-7xl mx-auto">
-      {/* Top Cockpit Header & Action Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-4 rounded-3xl">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
-              Karnataka Gym Hubli • Management Cockpit
-            </span>
-          </div>
-          <h2 className="text-xl font-black text-white mt-0.5">
-            Owner & Retention Command Center
+    <div className="space-y-5 pb-8 max-w-7xl mx-auto text-slate-100">
+      {/* Top Header Row (No floating badge above headline!) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#111726] border border-slate-800 p-5 rounded-2xl">
+        <div className="space-y-1">
+          <h2 className="text-xl font-extrabold text-white">
+            Owner and Retention Command Center
           </h2>
-          <p className="text-xs text-slate-400">
-            Actionable member retention, silent churn prevention, and revenue integrity.
+          <p className="text-xs text-slate-300">
+            Karnataka Gym Hubli - Devi Nagar. Monitor member retention, silent churn intervention, and revenue verification.
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setShowDailySummaryModal(true)}
-            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow"
-          >
-            <FileText className="w-4 h-4" />
-            <span>Generate Daily Owner Summary</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowDailySummaryModal(true)}
+          className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shrink-0"
+        >
+          <FileText className="w-4 h-4" />
+          <span>Generate Daily EOD Summary</span>
+        </button>
       </div>
 
-      {/* 8 Required Dashboard Metrics Grid */}
+      {/* 8 KPI Cards Grid: 2 or 4 Columns (No 3 icon boxes in a row! No colored left borders!) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* 1. Active Members */}
-        <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Active Members</span>
             <Users className="w-4 h-4 text-orange-400" />
           </div>
@@ -126,8 +107,8 @@ export default function OwnerDashboard() {
         </div>
 
         {/* 2. Today's Check-Ins */}
-        <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Today's Check-Ins</span>
             <QrCode className="w-4 h-4 text-emerald-400" />
           </div>
@@ -136,13 +117,13 @@ export default function OwnerDashboard() {
             <span className="text-xs text-slate-400">Visits</span>
           </div>
           <span className="text-[11px] text-slate-400 mt-1">
-            Entrance turnstile & assisted
+            Turnstile and assisted
           </span>
         </div>
 
         {/* 3. 7-Day Active Members */}
-        <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">7-Day Active</span>
             <Calendar className="w-4 h-4 text-cyan-400" />
           </div>
@@ -155,25 +136,24 @@ export default function OwnerDashboard() {
           </span>
         </div>
 
-        {/* 4. Open No-Show Cases (Silent Churn) */}
-        <div className="bg-slate-900/90 border border-rose-500/30 p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-2 h-full bg-rose-500"></div>
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span className="font-bold uppercase text-[10px] text-rose-300">Open Churn Risks</span>
+        {/* 4. Open No-Show Cases (Uniform 1px border, no colored left bar!) */}
+        <div className="bg-[#19141f] border border-rose-700 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-rose-300 text-xs">
+            <span className="font-bold uppercase text-[10px]">Open Churn Risks</span>
             <AlertTriangle className="w-4 h-4 text-rose-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="text-2xl font-black text-rose-300">{openNoShowCases.length}</span>
-            <span className="text-xs text-rose-400/80">Absent ≥{settings.noShowThresholdDays}d</span>
+            <span className="text-xs text-rose-400">Absent {settings.noShowThresholdDays}+ days</span>
           </div>
-          <span className="text-[11px] text-rose-300 font-bold mt-1">
-            Needs Coach Follow-Up
+          <span className="text-[11px] text-rose-300 font-semibold mt-1">
+            Action required on Red-List
           </span>
         </div>
 
-        {/* 5. Returned Members (Auto-Resolved) */}
-        <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
+        {/* 5. Returned Members */}
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Returned Members</span>
             <RotateCcw className="w-4 h-4 text-emerald-400" />
           </div>
@@ -182,14 +162,14 @@ export default function OwnerDashboard() {
             <span className="text-xs text-slate-400">Re-engaged</span>
           </div>
           <span className="text-[11px] text-emerald-400 font-semibold mt-1">
-            Auto-saved by turnstile
+            Auto-resolved by turnstile
           </span>
         </div>
 
-        {/* 6. Renewals Due (Within 7 Days) */}
-        <div className="bg-slate-900/90 border border-amber-500/30 p-4 rounded-2xl flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span className="font-bold uppercase text-[10px] text-amber-300">Renewals Due (7d)</span>
+        {/* 6. Renewals Due */}
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-300 text-xs">
+            <span className="font-bold uppercase text-[10px]">Renewals Due (7d)</span>
             <Clock className="w-4 h-4 text-amber-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
@@ -197,14 +177,14 @@ export default function OwnerDashboard() {
             <span className="text-xs text-slate-400">Members</span>
           </div>
           <span className="text-[11px] text-amber-400 font-semibold mt-1">
-            Urgent pipeline focus
+            Expiring this week
           </span>
         </div>
 
         {/* 7. Renewal Collection */}
-        <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span className="font-bold uppercase text-[10px]">Renewal Collection</span>
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-300 text-xs">
+            <span className="font-bold uppercase text-[10px]">Renewal Revenue</span>
             <IndianRupee className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
@@ -216,8 +196,8 @@ export default function OwnerDashboard() {
         </div>
 
         {/* 8. Add-On Revenue */}
-        <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
+        <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col justify-between">
+          <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="font-bold uppercase text-[10px]">Add-On Revenue</span>
             <ShoppingBag className="w-4 h-4 text-purple-400" />
           </div>
@@ -225,25 +205,20 @@ export default function OwnerDashboard() {
             <span className="text-xl font-black text-purple-300">₹{addOnRevenue.toLocaleString('en-IN')}</span>
           </div>
           <span className="text-[11px] text-purple-400 font-semibold mt-1">
-            PT & Whey Protein Sales
+            PT & Whey Protein sales
           </span>
         </div>
       </div>
 
       {/* Configurable No-Show Threshold Control Bar */}
-      <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-500/15 flex items-center justify-center text-orange-400 shrink-0">
-            <Sliders className="w-5 h-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-bold text-white">
-              Silent Churn Absenteeism Threshold: <strong className="text-orange-400">{thresholdInput} Days</strong>
-            </h4>
-            <p className="text-xs text-slate-400">
-              Members absent for {thresholdInput}+ days are flagged on the Red-List. Paused/medical/expired members are strictly excluded.
-            </p>
-          </div>
+      <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="space-y-0.5">
+          <h4 className="text-sm font-bold text-white">
+            Silent Churn Threshold: <strong className="text-orange-400">{thresholdInput} Days Absent</strong>
+          </h4>
+          <p className="text-xs text-slate-300">
+            Members absent for {thresholdInput} or more days are automatically flagged on the Red-List. Paused and expired members are excluded.
+          </p>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -256,77 +231,77 @@ export default function OwnerDashboard() {
             onChange={(e) => handleThresholdUpdate(e.target.value)}
             className="w-full md:w-48 accent-orange-500 cursor-pointer"
           />
-          <span className="text-xs font-mono font-bold text-white bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 shrink-0">
+          <span className="text-xs font-mono font-bold text-white bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 shrink-0">
             {thresholdInput} Days
           </span>
         </div>
       </div>
 
-      {/* Owner Module Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto scrollbar-none">
+      {/* Owner Module Tabs (Solid colors, no gradient text, no hover opacity fades) */}
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
         <button
+          type="button"
           onClick={() => setActiveOwnerTab('redlist')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'redlist'
-              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
           }`}
         >
-          <AlertTriangle className="w-4 h-4 text-rose-500" />
-          <span>Red-List Churn Board ({openNoShowCases.length})</span>
+          Red-List Churn Board ({openNoShowCases.length})
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveOwnerTab('renewals')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'renewals'
-              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
           }`}
         >
-          <Clock className="w-4 h-4 text-amber-400" />
-          <span>Renewal Pipeline & Receipts ({renewalsDueList.length})</span>
+          Renewal Pipeline ({renewalsDueList.length})
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveOwnerTab('inventory')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'inventory'
-              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
           }`}
         >
-          <Package className="w-4 h-4 text-purple-400" />
-          <span>Add-On Stock & PT Fulfillment</span>
+          Add-On Stock and PT Sessions
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveOwnerTab('pauses')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'pauses'
-              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
           }`}
         >
-          <Coffee className="w-4 h-4 text-cyan-400" />
-          <span>Membership Pause Manager</span>
+          Membership Pause Desk
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveOwnerTab('quality')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'quality'
-              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
           }`}
         >
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>Data-Quality Radar</span>
+          Data-Quality Radar
         </button>
       </div>
 
-      {/* Active Tab Content */}
-      <div className="pt-2">
+      {/* Active Tab View */}
+      <div className="pt-1">
         {activeOwnerTab === 'redlist' && <OwnerRedList />}
         {activeOwnerTab === 'renewals' && <OwnerRenewalPipeline />}
         {activeOwnerTab === 'inventory' && <OwnerInventoryAddons />}
@@ -334,11 +309,10 @@ export default function OwnerDashboard() {
         {activeOwnerTab === 'quality' && <OwnerDataQualityAlerts />}
       </div>
 
-      {/* Daily Owner Summary Modal */}
+      {/* Daily Summary Modal */}
       {showDailySummaryModal && (
         <OwnerDailySummaryModal onClose={() => setShowDailySummaryModal(false)} />
       )}
     </div>
   );
 }
-

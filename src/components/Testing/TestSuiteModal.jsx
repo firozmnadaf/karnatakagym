@@ -5,24 +5,18 @@ import {
   XCircle,
   Play,
   RotateCcw,
-  Sparkles,
-  ShieldCheck,
-  AlertTriangle,
-  Clock,
-  Terminal
+  Clock
 } from 'lucide-react';
 
 export default function TestSuiteModal() {
   const {
     members,
-    plans,
     addOns,
     staff,
     processCheckIn,
     processMembershipRenewal,
     purchaseAddOn,
     processRefund,
-    runDailyNoShowScan,
     runRenewalRemindersScan,
     runDataQualityAudit,
     gymQRToken
@@ -31,7 +25,6 @@ export default function TestSuiteModal() {
   const [testResults, setTestResults] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
 
-  // Execute all 11 prompt test scenarios
   const runAllTests = () => {
     setIsRunning(true);
     setTestResults(null);
@@ -41,14 +34,12 @@ export default function TestSuiteModal() {
 
       // Test 1: Duplicate QR scan in lockout window
       try {
-        const activeMem = members.find(m => m.id === 'mem_12'); // regular active member
-        // First scan (might be duplicate if already scanned today, or scan now)
-        const first = processCheckIn({
+        const activeMem = members.find(m => m.id === 'mem_12');
+        processCheckIn({
           memberId: activeMem.id,
           scannedToken: gymQRToken.token,
           method: 'MEMBER_QR'
         });
-        // Immediate second scan
         const second = processCheckIn({
           memberId: activeMem.id,
           scannedToken: gymQRToken.token,
@@ -80,7 +71,7 @@ export default function TestSuiteModal() {
         results.push({
           id: 2,
           name: '2. Expired Membership Scan Block',
-          description: 'Member with lapsed membership attempts turnstile entry.',
+          description: 'Member with lapsed pass attempts turnstile entry.',
           expected: 'Blocked with MEMBERSHIP_EXPIRED and 1-tap renewal action.',
           actual: `Received code: ${res.code}`,
           passed
@@ -152,7 +143,6 @@ export default function TestSuiteModal() {
           planId: 'plan_3m',
           simulateStatus: 'FAILED'
         });
-        // Check member expiry was not changed
         const passed = failRes.code === 'PAYMENT_FAILED' && mem.membershipExpiry === originalExpiry;
         results.push({
           id: 6,
@@ -169,14 +159,12 @@ export default function TestSuiteModal() {
       // Test 7: Duplicate Webhook Callback Idempotency
       try {
         const idempotencyKey = 'test_webhook_idemp_' + Date.now();
-        // First callback
-        const firstCall = processMembershipRenewal({
+        processMembershipRenewal({
           memberId: 'mem_08',
           planId: 'plan_1m',
           simulateStatus: 'PAID',
           idempotencyKey
         });
-        // Duplicate callback with same key
         const dupCall = processMembershipRenewal({
           memberId: 'mem_08',
           planId: 'plan_1m',
@@ -202,19 +190,19 @@ export default function TestSuiteModal() {
         const refundRes = processRefund('pay_01', 'Test satisfaction guarantee refund');
         results.push({
           id: 8,
-          name: '8. Payment Refund & Reversal Handling',
+          name: '8. Payment Refund and Reversal Handling',
           description: 'Owner initiates refund for cancellation within 3 days.',
           expected: 'Status changes to REFUNDED with timestamped audit log.',
           actual: refundRes.message,
           passed: refundRes.success
         });
       } catch (e) {
-        results.push({ id: 8, name: '8. Payment Refund & Reversal Handling', passed: false, actual: e.message });
+        results.push({ id: 8, name: '8. Payment Refund and Reversal Handling', passed: false, actual: e.message });
       }
 
       // Test 9: Unavailable Trainer PT Capacity Block
       try {
-        const trainer = staff.find(s => s.id === 'staff_2'); // Kavita Kalburgi
+        const trainer = staff.find(s => s.id === 'staff_2');
         const hasCapacityCheck = trainer.maxPTSlots !== undefined;
         results.push({
           id: 9,
@@ -230,7 +218,7 @@ export default function TestSuiteModal() {
 
       // Test 10: Out-of-Stock Product Checkout Block
       try {
-        const outItem = addOns.find(a => a.id === 'addon_supp_multivit'); // 0 stock item
+        const outItem = addOns.find(a => a.id === 'addon_supp_multivit');
         const res = purchaseAddOn({
           memberId: 'mem_12',
           addOnId: outItem.id,
@@ -251,7 +239,7 @@ export default function TestSuiteModal() {
 
       // Test 11: Message Opt-Out Adherence
       try {
-        const optOutMem = members.find(m => m.id === 'mem_16'); // Aishwarya Haliyal has marketingOptOut: true
+        const optOutMem = members.find(m => m.id === 'mem_16');
         const reminderScan = runRenewalRemindersScan();
         const passed = optOutMem.commPreferences.marketingOptOut === true && reminderScan.optedOutCount >= 1;
         results.push({
@@ -268,39 +256,34 @@ export default function TestSuiteModal() {
 
       setTestResults(results);
       setIsRunning(false);
-    }, 900);
+    }, 700);
   };
 
   const passCount = testResults ? testResults.filter(t => t.passed).length : 0;
 
   return (
-    <div className="space-y-6 pb-8 max-w-7xl mx-auto text-xs">
-      {/* Top Banner */}
-      <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
-            <span className="font-bold text-orange-400 uppercase tracking-wider text-[11px]">
-              Karnataka Gym Hubli • Quality Assurance
-            </span>
-          </div>
-          <h2 className="text-lg font-black text-white mt-0.5">
-            11-Point Edge Case & Integrity Verification Test Suite
+    <div className="space-y-6 pb-8 max-w-7xl mx-auto text-xs text-slate-100">
+      {/* Top Banner (No badge above headline!) */}
+      <div className="bg-[#111726] border border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-lg font-black text-white">
+            11-Point Edge Case and Integrity Verification Test Suite
           </h2>
-          <p className="text-slate-400 text-xs">
-            Automated assertion runner verifying all prompt safety rules, idempotency gates, and error states.
+          <p className="text-slate-300 text-xs">
+            Automated assertion runner verifying all prompt safety gates, idempotency locks, and error recovery states.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={runAllTests}
           disabled={isRunning}
-          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black px-5 py-2.5 rounded-2xl flex items-center justify-center gap-2 shadow text-xs shrink-0 transition-transform active:scale-95 disabled:opacity-50"
+          className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors text-xs shrink-0 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed"
         >
           {isRunning ? (
             <RotateCcw className="w-4 h-4 animate-spin" />
           ) : (
-            <Play className="w-4 h-4 fill-slate-950" />
+            <Play className="w-4 h-4 fill-white" />
           )}
           <span>{isRunning ? 'Running Assertions...' : 'Execute All 11 Tests'}</span>
         </button>
@@ -308,28 +291,28 @@ export default function TestSuiteModal() {
 
       {/* Summary Scorecard if run */}
       {testResults && (
-        <div className={`p-4 rounded-2xl border flex items-center justify-between gap-4 animate-in fade-in ${
+        <div className={`p-4 rounded-xl border flex items-center justify-between gap-4 ${
           passCount === 11
-            ? 'bg-emerald-950/40 border-emerald-500/50'
-            : 'bg-rose-950/40 border-rose-500/50'
+            ? 'bg-[#0e2417] border-emerald-500'
+            : 'bg-[#241014] border-rose-600'
         }`}>
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-              passCount === 11 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+              passCount === 11 ? 'bg-emerald-950 text-emerald-300' : 'bg-rose-950 text-rose-300'
             }`}>
-              {passCount === 11 ? <CheckCircle2 className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
+              {passCount === 11 ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
             </div>
             <div>
               <h4 className="text-sm font-extrabold text-white">
                 {passCount === 11 ? 'All 11 Edge-Case Assertions PASSED' : `${11 - passCount} Assertions Failed`}
               </h4>
-              <p className="text-slate-400 text-xs">
-                Zero security regressions detected across QR turnstile, idempotency locks, stock, and privacy.
+              <p className="text-slate-300 text-xs">
+                Zero security regressions detected across QR turnstile, idempotency locks, inventory, and privacy.
               </p>
             </div>
           </div>
 
-          <span className="font-mono text-base font-black px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-white">
+          <span className="font-mono text-base font-black px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
             {passCount} / 11 PASS
           </span>
         </div>
@@ -345,7 +328,7 @@ export default function TestSuiteModal() {
           { id: 5, name: '5. Missing/Corrupted Expiry Radar', description: 'Real-time alert for corrupted or missing membership records' },
           { id: 6, name: '6. Failed Payment Strict Expiry Safety', description: 'Never extend membership expiry if payment provider declines' },
           { id: 7, name: '7. Duplicate Payment Webhook Idempotency', description: 'Ensure provider retries do not add double days' },
-          { id: 8, name: '8. Payment Refund & Reversal Handling', description: 'Change status to REFUNDED with timestamped audit' },
+          { id: 8, name: '8. Payment Refund and Reversal Handling', description: 'Change status to REFUNDED with timestamped audit' },
           { id: 9, name: '9. Trainer Max Slot Capacity Enforcement', description: 'Prevent trainer double booking or capacity overflow' },
           { id: 10, name: '10. Out-of-Stock Product Purchase Block', description: 'Disable order and block checkout when stock reaches 0' },
           { id: 11, name: '11. Marketing Opt-Out Adherence', description: 'Skip promotional messages when member opted out' }
@@ -355,7 +338,7 @@ export default function TestSuiteModal() {
           return (
             <div
               key={t.id}
-              className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-slate-700 transition-all"
+              className="bg-[#111726] border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-slate-700 transition-colors"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -366,18 +349,18 @@ export default function TestSuiteModal() {
                       <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
                     )
                   ) : (
-                    <Clock className="w-4 h-4 text-slate-500 shrink-0" />
+                    <Clock className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                   <h4 className="font-extrabold text-sm text-white">{t.name}</h4>
                 </div>
 
-                <p className="text-slate-400 text-xs">
+                <p className="text-slate-300 text-xs">
                   {t.description}
                 </p>
 
                 {hasRun && (
-                  <div className="pt-1 text-[11px] font-mono text-slate-300">
-                    <span className="text-slate-500">Assertion Output:</span> {t.actual}
+                  <div className="pt-1 text-[11px] font-mono text-slate-200">
+                    <span className="text-slate-400">Assertion Output:</span> {t.actual}
                   </div>
                 )}
               </div>
@@ -386,13 +369,13 @@ export default function TestSuiteModal() {
                 {hasRun ? (
                   <span className={`px-3 py-1 rounded-full text-xs font-black ${
                     t.passed
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                      : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
+                      : 'bg-rose-950 text-rose-300 border border-rose-700'
                   }`}>
                     {t.passed ? 'PASS' : 'FAIL'}
                   </span>
                 ) : (
-                  <span className="text-slate-500 text-xs bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+                  <span className="text-slate-300 text-xs bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 font-semibold">
                     Ready to Run
                   </span>
                 )}
@@ -404,4 +387,3 @@ export default function TestSuiteModal() {
     </div>
   );
 }
-

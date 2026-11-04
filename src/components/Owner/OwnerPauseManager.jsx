@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import { useGym } from '../../context/GymContext';
 import {
-  Coffee,
   CheckCircle,
-  Plus,
-  Calendar,
-  ShieldCheck,
-  User,
-  AlertCircle
+  Plus
 } from 'lucide-react';
 
 export default function OwnerPauseManager() {
@@ -21,7 +16,6 @@ export default function OwnerPauseManager() {
   const [pauseDays, setPauseDays] = useState(14);
   const [toast, setToast] = useState(null);
 
-  // List of currently paused members
   const pausedMembers = members.filter(m => m.status === 'paused');
 
   const handleApprovePause = (e) => {
@@ -47,40 +41,37 @@ export default function OwnerPauseManager() {
   };
 
   return (
-    <div className="space-y-4 text-xs">
-      {/* Top Banner */}
-      <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-            <Coffee className="w-4 h-4 text-cyan-400" />
-            Membership Pause & Medical Freeze Desk
-          </h3>
-          <p className="text-slate-400 mt-0.5">
-            Approved pauses safeguard the member's fair streak and automatically exclude them from silent churn scans.
-          </p>
-        </div>
+    <div className="space-y-4 text-xs text-slate-100">
+      {/* Top Banner (No badge above headline!) */}
+      <div className="bg-[#111726] border border-slate-800 p-5 rounded-2xl space-y-1">
+        <h3 className="text-sm font-extrabold text-white">
+          Membership Pause and Medical Freeze Desk
+        </h3>
+        <p className="text-slate-300">
+          Approved pauses safeguard the member's fair streak and automatically exclude them from silent churn scans.
+        </p>
       </div>
 
       {toast && (
-        <div className="bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 p-3 rounded-2xl flex items-center gap-2 animate-in fade-in">
-          <CheckCircle className="w-4 h-4 text-emerald-400" />
-          <span>{toast}</span>
+        <div className="bg-[#0e2417] border border-emerald-500 text-emerald-300 p-3.5 rounded-xl flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span className="font-semibold">{toast}</span>
         </div>
       )}
 
       {/* Approve New Pause Form */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+      <div className="bg-[#111726] border border-slate-800 rounded-xl p-5 space-y-4">
         <h4 className="font-extrabold text-white text-xs uppercase tracking-wider flex items-center gap-2">
           <Plus className="w-4 h-4 text-orange-400" /> Grant Approved Membership Pause
         </h4>
 
         <form onSubmit={handleApprovePause} className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="text-slate-300 font-bold block mb-1">Select Member</label>
+            <label className="text-slate-200 font-bold block mb-1">Select Member</label>
             <select
               value={selectedMemberId}
               onChange={(e) => setSelectedMemberId(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
             >
               {members.filter(m => m.status === 'active').map(m => (
                 <option key={m.id} value={m.id}>
@@ -91,11 +82,11 @@ export default function OwnerPauseManager() {
           </div>
 
           <div>
-            <label className="text-slate-300 font-bold block mb-1">Pause Duration</label>
+            <label className="text-slate-200 font-bold block mb-1">Pause Duration</label>
             <select
               value={pauseDays}
               onChange={(e) => setPauseDays(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
             >
               <option value="7">7 Days (Short Travel / Exam)</option>
               <option value="14">14 Days (Medical Rest / Sprain)</option>
@@ -105,63 +96,66 @@ export default function OwnerPauseManager() {
           </div>
 
           <div>
-            <label className="text-slate-300 font-bold block mb-1">Medical / Travel Reason</label>
+            <label className="text-slate-200 font-bold block mb-1">Medical / Travel Reason</label>
             <input
               type="text"
               value={pauseReason}
               onChange={(e) => setPauseReason(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
               required
             />
           </div>
 
-          <div className="md:col-span-3 flex justify-end">
+          <div className="md:col-span-3 flex justify-end pt-1">
             <button
               type="submit"
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs shadow"
+              className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-colors"
             >
-              Approve Freeze & Extend Expiry
+              Approve Freeze and Extend Expiry
             </button>
           </div>
         </form>
       </div>
 
       {/* Active Pauses Table */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+      <div className="bg-[#111726] border border-slate-800 rounded-xl p-4 space-y-3">
         <h4 className="font-extrabold text-white text-xs uppercase tracking-wider">
           Currently Paused Members ({pausedMembers.length})
         </h4>
 
         {pausedMembers.length === 0 ? (
-          <div className="text-slate-500 p-4 text-center">No members currently on pause.</div>
+          <div className="text-slate-400 p-4 text-center">No members currently on pause.</div>
         ) : (
           <div className="space-y-2">
             {pausedMembers.map(m => (
               <div
                 key={m.id}
-                className="bg-slate-950/70 border border-slate-800 p-3 rounded-xl flex flex-wrap items-center justify-between gap-3"
+                className="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3"
               >
                 <div>
                   <div className="font-bold text-white text-sm">{m.name}</div>
-                  <div className="text-slate-400 text-[11px]">{m.phone}</div>
-                  <div className="text-amber-300 text-[11px] mt-0.5">
-                    Reason: {m.pauseReason || 'Doctor rest note'}
+                  <a href={`tel:${m.phone}`} className="text-orange-400 hover:text-white text-xs font-mono underline">
+                    {m.phone}
+                  </a>
+                  <div className="text-amber-300 text-xs mt-0.5">
+                    Reason: {m.pauseReason || 'Doctor rest certificate'}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-500 block uppercase">Freeze Window</span>
+                    <span className="text-[10px] text-slate-400 block uppercase font-bold">Freeze Window</span>
                     <span className="font-mono text-cyan-300 font-bold">
                       {m.pauseStart} to {m.pauseEnd}
                     </span>
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => handleResumeMembership(m.id)}
-                    className="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold"
+                    className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
                   >
-                    Resume Membership
+                    Resume Pass
                   </button>
                 </div>
               </div>
@@ -172,4 +166,3 @@ export default function OwnerPauseManager() {
     </div>
   );
 }
-

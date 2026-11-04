@@ -5,12 +5,8 @@ import {
   Search,
   Download,
   Copy,
-  CheckCircle,
   Table,
-  Layers,
-  Key,
-  ShieldCheck,
-  FileCode
+  Key
 } from 'lucide-react';
 
 export default function DatabaseExplorer() {
@@ -19,7 +15,6 @@ export default function DatabaseExplorer() {
   const [searchTerm, setSearchTerm] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // The 14 Required Data Tables mapped from context state
   const tables = {
     Members: {
       data: gym.members,
@@ -139,27 +134,22 @@ export default function DatabaseExplorer() {
   };
 
   return (
-    <div className="space-y-6 pb-8 max-w-7xl mx-auto text-xs">
-      {/* Top Banner */}
-      <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <Database className="w-4 h-4 text-purple-400" />
-            <span className="font-bold text-orange-400 uppercase tracking-wider text-[11px]">
-              Karnataka Gym Hubli • Relational Schema & State Store
-            </span>
-          </div>
-          <h2 className="text-lg font-black text-white mt-0.5">
-            14 System Data Tables & Live Query Explorer
+    <div className="space-y-6 pb-8 max-w-7xl mx-auto text-xs text-slate-100">
+      {/* Top Banner (No badge above headline!) */}
+      <div className="bg-[#111726] border border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-lg font-black text-white">
+            14 System Data Tables and State Explorer
           </h2>
-          <p className="text-slate-400 text-xs">
-            Live inspection of all relational tables with foreign keys, indexes, and full export capabilities.
+          <p className="text-slate-300">
+            Live inspection of all relational tables with foreign keys, indexes, and full JSON export capabilities.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={handleExportFullDatabase}
-          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black px-4 py-2 rounded-xl flex items-center justify-center gap-1.5 shadow shrink-0"
+          className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors shrink-0"
         >
           <Download className="w-4 h-4" />
           <span>Export Full DB (JSON)</span>
@@ -167,7 +157,7 @@ export default function DatabaseExplorer() {
       </div>
 
       {/* 14 Table Selector Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2">
         {Object.keys(tables).map(tbl => {
           const isSelected = tbl === selectedTable;
           const count = tables[tbl].data.length;
@@ -175,20 +165,21 @@ export default function DatabaseExplorer() {
           return (
             <button
               key={tbl}
+              type="button"
               onClick={() => {
                 setSelectedTable(tbl);
                 setSearchTerm('');
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
                 isSelected
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-orange-600 text-white'
+                  : 'bg-[#111726] text-slate-300 hover:text-white border border-slate-800 hover:bg-slate-800'
               }`}
             >
               <Table className="w-3.5 h-3.5" />
               <span>{tbl}</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                isSelected ? 'bg-slate-950/20 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                isSelected ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-200'
               }`}>
                 {count}
               </span>
@@ -198,10 +189,10 @@ export default function DatabaseExplorer() {
       </div>
 
       {/* Table Schema & Foreign Key Metadata */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-2">
+      <div className="bg-[#111726] border border-slate-800 rounded-xl p-4 space-y-2">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800 pb-2">
           <div className="flex items-center gap-2">
-            <Key className="w-4 h-4 text-amber-400" />
+            <Key className="w-4 h-4 text-orange-400" />
             <h4 className="font-extrabold text-white text-sm">
               Table: <span className="text-orange-400">{selectedTable}</span> ({filteredData.length} Records)
             </h4>
@@ -209,24 +200,25 @@ export default function DatabaseExplorer() {
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={handleCopyTableJSON}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1"
+              className="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <Copy className="w-3.5 h-3.5" />
-              <span>{copied ? 'Copied!' : 'Copy Table JSON'}</span>
+              <span>{copied ? 'Copied JSON!' : 'Copy Table JSON'}</span>
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] pt-1">
-          <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
-            <span className="text-slate-500 font-bold block uppercase text-[10px]">Columns & Schema:</span>
-            <code className="text-slate-300 font-mono text-[11px] break-words">
+          <div className="bg-[#0b0f17] p-3 rounded-lg border border-slate-800">
+            <span className="text-slate-400 font-bold block uppercase text-[10px]">Columns & Schema:</span>
+            <code className="text-slate-200 font-mono text-[11px] break-words">
               {activeTableMeta.schema}
             </code>
           </div>
-          <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
-            <span className="text-slate-500 font-bold block uppercase text-[10px]">Database Indexes:</span>
+          <div className="bg-[#0b0f17] p-3 rounded-lg border border-slate-800">
+            <span className="text-slate-400 font-bold block uppercase text-[10px]">Database Indexes:</span>
             <code className="text-amber-300 font-mono text-[11px] break-words">
               {activeTableMeta.indexes}
             </code>
@@ -236,36 +228,36 @@ export default function DatabaseExplorer() {
 
       {/* Search within table */}
       <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
         <input
           type="text"
           placeholder={`Search records inside ${selectedTable}...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-9 pr-4 py-2.5 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-orange-500"
+          className="w-full bg-[#111726] border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-orange-500"
         />
       </div>
 
       {/* Records Table Viewer */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 overflow-x-auto shadow-xl">
+      <div className="bg-[#111726] border border-slate-800 rounded-xl p-4 overflow-x-auto shadow-xl">
         {filteredData.length === 0 ? (
-          <div className="text-center p-6 text-slate-500">No records found.</div>
+          <div className="text-center p-6 text-slate-400">No records found matching search.</div>
         ) : (
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+              <tr className="border-b border-slate-800 text-slate-300 font-mono text-[11px]">
                 {Object.keys(filteredData[0] || {}).map(k => (
-                  <th key={k} className="py-2 px-3 whitespace-nowrap">
+                  <th key={k} className="py-2.5 px-3 whitespace-nowrap">
                     {k}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+            <tbody className="divide-y divide-slate-800 font-mono text-[11px]">
               {filteredData.map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={idx} className="hover:bg-slate-900 transition-colors">
                   {Object.entries(row).map(([k, v], cellIdx) => (
-                    <td key={cellIdx} className="py-2 px-3 max-w-xs truncate text-slate-300">
+                    <td key={cellIdx} className="py-2.5 px-3 max-w-xs truncate text-slate-200">
                       {typeof v === 'object' && v !== null
                         ? JSON.stringify(v)
                         : String(v)}
@@ -280,4 +272,3 @@ export default function DatabaseExplorer() {
     </div>
   );
 }
-

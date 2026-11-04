@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import { useGym } from '../../context/GymContext';
 import {
-  AlertTriangle,
   Phone,
   MessageCircle,
   CheckCircle2,
   Calendar,
-  User,
   Clock,
-  Filter,
-  ChevronDown,
   Sparkles,
   ShieldAlert,
   ArrowRight
@@ -27,18 +23,17 @@ export default function OwnerRedList() {
     runDailyNoShowScan
   } = useGym();
 
-  const [selectedCase, setSelectedCase] = useState(null); // case being followed up
+  const [selectedCase, setSelectedCase] = useState(null);
   const [outcomeForm, setOutcomeForm] = useState({
     channel: 'CALL',
     outcome: 'Will return',
     nextActionDate: '',
     notes: ''
   });
-  const [filterStatus, setFilterStatus] = useState('ALL'); // 'ALL' | 'OPEN' | 'FOLLOWED_UP' | 'RESOLVED_RETURNED'
+  const [filterStatus, setFilterStatus] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [actionSuccessToast, setActionSuccessToast] = useState(null);
 
-  // Filter cases
   const filteredCases = noShowCases.filter(c => {
     if (filterStatus !== 'ALL' && c.status !== filterStatus) return false;
     const member = members.find(m => m.id === c.memberId);
@@ -54,7 +49,6 @@ export default function OwnerRedList() {
     return true;
   });
 
-  // Open modal to log follow-up
   const handleOpenOutcomeModal = (c) => {
     setSelectedCase(c);
     setOutcomeForm({
@@ -65,7 +59,6 @@ export default function OwnerRedList() {
     });
   };
 
-  // Submit follow-up outcome
   const handleSubmitOutcome = (e) => {
     e.preventDefault();
     if (!selectedCase) return;
@@ -73,7 +66,7 @@ export default function OwnerRedList() {
     recordFollowUpOutcome({
       caseId: selectedCase.id,
       memberId: selectedCase.memberId,
-      staffId: 'staff_1', // Owner or assigned trainer
+      staffId: 'staff_1',
       channel: outcomeForm.channel,
       outcome: outcomeForm.outcome,
       nextActionDate: outcomeForm.nextActionDate || null,
@@ -85,73 +78,73 @@ export default function OwnerRedList() {
     setTimeout(() => setActionSuccessToast(null), 3000);
   };
 
-  // Generate Hubli WhatsApp Template
   const handleOpenWhatsApp = (member, absentDays, trainer) => {
     const text = encodeURIComponent(
-      `Namaskara ${member.name}! We noticed you haven't visited Karnataka Gym Devi Nagar for the last ${absentDays} days. Coach ${trainer?.name || 'Kavita'} and our team want to check if everything is okay with your workout routine? Let us know if you need slot adjustments or training support!`
+      `Namaskara ${member.name}! We noticed you haven't visited Karnataka Gym Devi Nagar for the last ${absentDays} days. Coach ${trainer?.name || 'Kavita'} and our team want to check if everything is okay with your workout schedule. Let us know if you need slot adjustments or routine support!`
     );
-    window.open(`https://api.whatsapp.com/send?phone=${member.phone.replace(/[^0-9]/g, '')}&text=${text}`, '_blank');
+    window.open(`https://wa.me/${member.phone.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header & Scanning Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
-        <div>
+    <div className="space-y-4 text-slate-100">
+      {/* Top Header & Scan Trigger (No badge above headline!) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#111726] border border-slate-800 p-5 rounded-2xl">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-rose-500" />
+            <h3 className="text-base font-extrabold text-white">
               Silent Churn Intervention Board (Red-List)
             </h3>
-            <span className="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-bold px-2.5 py-0.5 rounded-full">
-              {noShowCases.filter(c => c.status === 'OPEN').length} Urgent Cases
+            <span className="bg-rose-950 text-rose-300 border border-rose-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+              {noShowCases.filter(c => c.status === 'OPEN').length} Urgent
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Detects members absent ≥ {settings.noShowThresholdDays} days. Automatically excludes paused, frozen and expired passes.
+          <p className="text-xs text-slate-300">
+            Flags members absent {settings.noShowThresholdDays} or more days. Automatically excludes paused, medical freeze, and expired passes.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() => {
             const res = runDailyNoShowScan();
             setActionSuccessToast(res.message);
             setTimeout(() => setActionSuccessToast(null), 3000);
           }}
-          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-2 shadow shrink-0 active:scale-95 transition-transform"
+          className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shrink-0"
         >
           <Sparkles className="w-4 h-4" />
           <span>Run 6:00 AM Scan Now</span>
         </button>
       </div>
 
-      {/* Success Toast */}
+      {/* Success Notification */}
       {actionSuccessToast && (
-        <div className="bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 p-3 rounded-2xl text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{actionSuccessToast}</span>
+        <div className="bg-[#0e2417] border border-emerald-500 text-emerald-300 p-3.5 rounded-xl text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span className="font-semibold">{actionSuccessToast}</span>
         </div>
       )}
 
       {/* Search & Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/50 border border-slate-800/80 p-3 rounded-2xl text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#111726] border border-slate-800 p-3 rounded-xl text-xs">
         <input
           type="text"
-          placeholder="Search by member name, phone or ID..."
+          placeholder="Search by member name or phone..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 flex-1 min-w-[200px]"
+          className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-orange-500 flex-1 min-w-[200px]"
         />
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
           {['ALL', 'OPEN', 'FOLLOWED_UP', 'RESOLVED_RETURNED'].map(st => (
             <button
               key={st}
+              type="button"
               onClick={() => setFilterStatus(st)}
-              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors ${
                 filterStatus === st
-                  ? 'bg-orange-500 text-slate-950 shadow'
-                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-orange-600 text-white'
+                  : 'bg-slate-900 text-slate-300 hover:text-white border border-slate-800'
               }`}
             >
               {st === 'ALL' ? 'All Cases' : st.replace('_', ' ')}
@@ -160,11 +153,11 @@ export default function OwnerRedList() {
         </div>
       </div>
 
-      {/* Red-List Cards / Rows */}
+      {/* Red-List Cards */}
       <div className="space-y-3">
         {filteredCases.length === 0 ? (
-          <div className="bg-slate-900/60 border border-slate-800 p-8 rounded-2xl text-center text-slate-400 text-xs">
-            No churn risk cases matching current filter. Great retention!
+          <div className="bg-[#111726] border border-slate-800 p-8 rounded-xl text-center text-slate-300 text-xs">
+            No churn risk cases matching current filter. Great attendance!
           </div>
         ) : (
           filteredCases.map(c => {
@@ -179,26 +172,35 @@ export default function OwnerRedList() {
             return (
               <div
                 key={c.id}
-                className="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 transition-all space-y-3 shadow-md"
+                className="bg-[#111726] border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition-colors space-y-3"
               >
-                {/* Top Row: Member Bio, Absent Days Pill, Status */}
+                {/* Top Row: Member Bio, Absent Days, Status */}
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <img
                       src={member.avatar}
                       alt={member.name}
-                      className="w-11 h-11 rounded-full object-cover border-2 border-slate-700"
+                      className="w-11 h-11 rounded-full object-cover border border-slate-700"
+                      width={44}
+                      height={44}
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-extrabold text-white">{member.name}</h4>
-                        <span className="text-[11px] text-slate-400 font-mono">{member.phone}</span>
+                        <h4 className="text-sm font-bold text-white">{member.name}</h4>
+                        {/* Clickable member phone link */}
+                        <a
+                          href={`tel:${member.phone}`}
+                          className="text-xs text-orange-400 hover:text-white font-mono underline font-medium"
+                          title="Call member directly"
+                        >
+                          {member.phone}
+                        </a>
                       </div>
-                      <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                      <div className="text-xs text-slate-300 flex flex-wrap items-center gap-2 mt-0.5">
                         <span className="text-amber-400 font-semibold">{plan ? plan.name : 'Standard'}</span>
-                        <span>•</span>
+                        <span>|</span>
                         <span>Expires: {member.membershipExpiry}</span>
-                        <span>•</span>
+                        <span>|</span>
                         <span>Slot: {member.preferredSlot}</span>
                       </div>
                     </div>
@@ -206,27 +208,27 @@ export default function OwnerRedList() {
 
                   {/* Absent Days Badge & Case Status */}
                   <div className="flex items-center gap-2">
-                    <div className="bg-rose-500/15 border border-rose-500/30 px-3 py-1 rounded-xl text-center">
-                      <span className="text-[10px] uppercase font-bold text-rose-400 block">Absent</span>
-                      <span className="text-sm font-black text-rose-300">{c.daysAbsent} Days</span>
+                    <div className="bg-rose-950 border border-rose-800 px-3 py-1 rounded-xl text-center">
+                      <span className="text-[10px] uppercase font-bold text-rose-300 block">Absent</span>
+                      <span className="text-sm font-black text-rose-200">{c.daysAbsent} Days</span>
                     </div>
 
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider ${
                       c.status === 'OPEN'
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                        ? 'bg-rose-950 text-rose-300 border border-rose-800'
                         : c.status === 'FOLLOWED_UP'
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                        ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                        : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
                     }`}>
                       {c.status.replace('_', ' ')}
                     </span>
                   </div>
                 </div>
 
-                {/* Middle Row: Last Check-In, Trainer, Past Follow-Up */}
-                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 text-xs text-slate-300 grid grid-cols-1 md:grid-cols-3 gap-2">
+                {/* Middle Row: Last Check-In, Mentor, Latest Follow-Up */}
+                <div className="bg-[#0b0f17] p-3 rounded-lg border border-slate-800 text-xs text-slate-300 grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div>
-                    <span className="text-slate-500 block text-[10px] uppercase">Last Check-In</span>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Last Check-In</span>
                     <strong className="text-white">
                       {member.lastCheckIn
                         ? new Date(member.lastCheckIn).toLocaleDateString('en-IN', {
@@ -238,25 +240,25 @@ export default function OwnerRedList() {
                   </div>
 
                   <div>
-                    <span className="text-slate-500 block text-[10px] uppercase">Assigned Hubli Mentor</span>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Assigned Mentor</span>
                     <strong className="text-orange-400">{trainer ? trainer.name : 'General Floor'}</strong>
                   </div>
 
                   <div>
-                    <span className="text-slate-500 block text-[10px] uppercase">Latest Follow-Up</span>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Latest Follow-Up</span>
                     {latestFollowUp ? (
-                      <span className="text-amber-300">
+                      <span className="text-amber-300 font-medium">
                         {latestFollowUp.outcome} ({new Date(latestFollowUp.loggedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })})
                       </span>
                     ) : (
-                      <span className="text-slate-500 italic">No contact yet</span>
+                      <span className="text-slate-400">No contact yet</span>
                     )}
                   </div>
                 </div>
 
                 {/* Bottom Row: Actions (Call, WhatsApp, Mark Outcome) */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
-                  <div className="text-[11px] text-slate-400">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800">
+                  <div className="text-xs text-slate-300">
                     {c.historyNotes}
                   </div>
 
@@ -264,18 +266,19 @@ export default function OwnerRedList() {
                     {/* Call Action */}
                     <a
                       href={`tel:${member.phone.replace(/[^0-9]/g, '')}`}
-                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      className="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
                       title="Direct Phone Call"
                     >
-                      <Phone className="w-3.5 h-3.5 text-cyan-400" />
+                      <Phone className="w-3.5 h-3.5 text-orange-400" />
                       <span>Call</span>
                     </a>
 
                     {/* WhatsApp Action with Hubli Template */}
                     <button
+                      type="button"
                       onClick={() => handleOpenWhatsApp(member, c.daysAbsent, trainer)}
-                      className="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                      title="Send WhatsApp Nudge"
+                      className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      title="Send WhatsApp Message"
                     >
                       <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                       <span>WhatsApp Nudge</span>
@@ -283,8 +286,9 @@ export default function OwnerRedList() {
 
                     {/* Mark Outcome Modal Trigger */}
                     <button
+                      type="button"
                       onClick={() => handleOpenOutcomeModal(c)}
-                      className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow transition-transform active:scale-95"
+                      className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors"
                     >
                       <span>Mark Outcome</span>
                       <ArrowRight className="w-3 h-3" />
@@ -297,39 +301,40 @@ export default function OwnerRedList() {
         )}
       </div>
 
-      {/* Follow-Up Outcome Recording Modal */}
+      {/* Follow-Up Outcome Recording Modal (Solid dark, no glassmorphism) */}
       {selectedCase && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111726] border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl text-xs">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
                 <h4 className="text-base font-extrabold text-white">Record Member Follow-Up</h4>
-                <p className="text-xs text-slate-400">
-                  Case #{selectedCase.id} • Karnataka Gym Member Care
+                <p className="text-xs text-slate-300">
+                  Case #{selectedCase.id} - Karnataka Gym Member Care
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedCase(null)}
-                className="text-slate-400 hover:text-white p-1"
+                className="text-slate-400 hover:text-white p-1 text-sm font-bold"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSubmitOutcome} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSubmitOutcome} className="space-y-3.5">
               {/* Channel */}
               <div>
-                <label className="text-slate-300 font-bold block mb-1">Contact Channel</label>
+                <label className="text-slate-200 font-bold block mb-1">Contact Channel</label>
                 <div className="grid grid-cols-3 gap-2">
                   {['CALL', 'WHATSAPP', 'IN_PERSON'].map(ch => (
                     <button
                       key={ch}
                       type="button"
                       onClick={() => setOutcomeForm(prev => ({ ...prev, channel: ch }))}
-                      className={`py-2 rounded-xl border font-bold ${
+                      className={`py-2 rounded-xl border font-bold transition-colors ${
                         outcomeForm.channel === ch
-                          ? 'bg-orange-500/20 text-orange-400 border-orange-500'
-                          : 'bg-slate-950 text-slate-400 border-slate-800'
+                          ? 'bg-orange-600 text-white border-orange-500'
+                          : 'bg-slate-900 text-slate-300 border-slate-800'
                       }`}
                     >
                       {ch.replace('_', ' ')}
@@ -340,13 +345,13 @@ export default function OwnerRedList() {
 
               {/* Mandatory Outcomes as specified in prompt */}
               <div>
-                <label className="text-slate-300 font-bold block mb-1">
+                <label className="text-slate-200 font-bold block mb-1">
                   Follow-Up Outcome <span className="text-rose-400">*</span>
                 </label>
                 <select
                   value={outcomeForm.outcome}
                   onChange={(e) => setOutcomeForm(prev => ({ ...prev, outcome: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
                   required
                 >
                   <option value="Will return">Will return</option>
@@ -361,28 +366,28 @@ export default function OwnerRedList() {
 
               {/* Next Action Date */}
               <div>
-                <label className="text-slate-300 font-bold block mb-1">
+                <label className="text-slate-200 font-bold block mb-1">
                   Next Action / Follow-Up Date
                 </label>
                 <input
                   type="date"
                   value={outcomeForm.nextActionDate}
                   onChange={(e) => setOutcomeForm(prev => ({ ...prev, nextActionDate: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
                 />
               </div>
 
-              {/* Notes */}
+              {/* Notes (No placeholder text) */}
               <div>
-                <label className="text-slate-300 font-bold block mb-1">
-                  Conversation Notes & Member Reason
+                <label className="text-slate-200 font-bold block mb-1">
+                  Conversation Notes and Resolution Plan
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="e.g. Member had back strain, suggested recovery stretching with Coach Vijay on Saturday..."
                   value={outcomeForm.notes}
                   onChange={(e) => setOutcomeForm(prev => ({ ...prev, notes: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-orange-500"
+                  required
                 ></textarea>
               </div>
 
@@ -391,13 +396,13 @@ export default function OwnerRedList() {
                 <button
                   type="button"
                   onClick={() => setSelectedCase(null)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-xl"
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-slate-950 font-black px-5 py-2 rounded-xl shadow"
+                  className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-5 py-2 rounded-xl transition-colors"
                 >
                   Save Outcome
                 </button>
@@ -409,4 +414,3 @@ export default function OwnerRedList() {
     </div>
   );
 }
-
