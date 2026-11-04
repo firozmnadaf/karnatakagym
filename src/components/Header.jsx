@@ -9,8 +9,10 @@ import {
   Phone,
   Mail,
   MapPin,
-  Check
+  Check,
+  Download
 } from 'lucide-react';
+import InstallAppModal from './Common/InstallAppModal';
 
 export default function Header() {
   const {
@@ -27,6 +29,7 @@ export default function Header() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [installModalOpen, setInstallModalOpen] = useState(false);
 
   // Dynamic Page Titles for every role & view
   useEffect(() => {
@@ -163,6 +166,17 @@ export default function Header() {
               <span>Wide View</span>
             </button>
           </div>
+
+          {/* Download Mobile App Button */}
+          <button
+            type="button"
+            onClick={() => setInstallModalOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-orange-600/20 hover:bg-orange-600 text-orange-400 hover:text-white border border-orange-500/40 text-xs font-bold transition-colors"
+            title="Download Karnataka Gym Mobile App"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Install App</span>
+          </button>
 
           {/* Factory Reset Button */}
           <button
@@ -367,8 +381,27 @@ export default function Header() {
               <Mail className="w-3.5 h-3.5" /> Email
             </a>
           </div>
+
+          {/* Download App Action in Mobile Menu */}
+          <button
+            type="button"
+            onClick={() => {
+              setInstallModalOpen(true);
+              setMobileMenuOpen(false);
+            }}
+            className="w-full p-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold flex items-center justify-center gap-2 text-xs transition-colors shadow-lg shadow-orange-950/40"
+          >
+            <Download className="w-4 h-4" />
+            <span>Install / Download App to Phone</span>
+          </button>
         </div>
       )}
+
+      {/* PWA / Mobile Install Modal */}
+      <InstallAppModal
+        isOpen={installModalOpen}
+        onClose={() => setInstallModalOpen(false)}
+      />
     </header>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGym } from '../../context/GymContext';
 import {
   Calendar,
@@ -10,8 +10,11 @@ import {
   CheckCircle,
   ShoppingBag,
   ChevronRight,
-  Phone
+  Phone,
+  Download,
+  Smartphone
 } from 'lucide-react';
+import InstallAppModal from '../Common/InstallAppModal';
 
 export default function MemberHome({ onNavigate }) {
   const {
@@ -20,6 +23,8 @@ export default function MemberHome({ onNavigate }) {
     activeMemberStreak,
     attendance
   } = useGym();
+
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   const today = new Date();
   const expiryDate = new Date(activeMember.membershipExpiry);
@@ -75,6 +80,28 @@ export default function MemberHome({ onNavigate }) {
             </span>
           )}
         </div>
+      </div>
+
+      {/* Download Mobile App Quick Action Banner */}
+      <div className="bg-[#10192b] border border-cyan-800/80 p-3.5 rounded-2xl flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-cyan-950 text-cyan-400 border border-cyan-700 shrink-0">
+            <Download className="w-4 h-4" />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold text-white">Download Mobile App</h4>
+            <p className="text-[11px] text-slate-300">1-tap turnstile QR access and offline sync on your phone</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowInstallModal(true)}
+          className="bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors shrink-0 shadow-md"
+        >
+          <Smartphone className="w-3.5 h-3.5" />
+          <span>Install</span>
+        </button>
       </div>
 
       {/* Urgent Renewal Callout if Expiring Soon */}
@@ -277,6 +304,12 @@ export default function MemberHome({ onNavigate }) {
           </a>.
         </p>
       </div>
+
+      {/* PWA / Mobile Install Modal */}
+      <InstallAppModal
+        isOpen={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+      />
     </div>
   );
 }

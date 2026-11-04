@@ -5,8 +5,11 @@ import {
   ArrowLeft,
   CheckCircle,
   Lock,
-  Phone
+  Phone,
+  Smartphone,
+  Download
 } from 'lucide-react';
+import InstallAppModal from '../Common/InstallAppModal';
 
 export default function MemberSettings({ onBack }) {
   const {
@@ -15,6 +18,7 @@ export default function MemberSettings({ onBack }) {
   } = useGym();
 
   const [savedToast, setSavedToast] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   const handleToggle = (key) => {
     const current = activeMember.commPreferences || {};
@@ -162,6 +166,26 @@ export default function MemberSettings({ onBack }) {
         </div>
       </div>
 
+      {/* Mobile App Download Card */}
+      <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Smartphone className="w-5 h-5 text-orange-400 shrink-0" />
+          <div>
+            <span className="text-xs font-bold text-white block">Download App to Mobile</span>
+            <span className="text-[11px] text-slate-300">Run standalone with offline turnstile access</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowInstallModal(true)}
+          className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors shrink-0"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>Install</span>
+        </button>
+      </div>
+
       {/* Safety & Integrity Guarantee */}
       <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl text-xs text-slate-300 space-y-1">
         <div className="flex items-center gap-2 text-white font-bold">
@@ -171,6 +195,12 @@ export default function MemberSettings({ onBack }) {
           We never store raw credit card numbers or UPI security pins. All attendance logs, payment receipts, and membership pause requests are preserved with cryptographic timestamps in compliance with consumer standards.
         </p>
       </div>
+
+      {/* Install App Modal */}
+      <InstallAppModal
+        isOpen={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+      />
     </div>
   );
 }
