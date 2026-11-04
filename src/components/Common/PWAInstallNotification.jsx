@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Smartphone, Download, X, CheckCircle2 } from 'lucide-react';
+import { Smartphone, Download, X } from 'lucide-react';
 import InstallAppModal from './InstallAppModal';
 
 export default function PWAInstallNotification() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [showModalGuide, setShowModalGuide] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true
+    );
+  });
 
   useEffect(() => {
-    // Check if the user is already running the installed standalone app
-    const standalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.navigator.standalone === true;
-    setIsStandalone(standalone);
-
-    if (standalone) {
+    if (isStandalone) {
       return;
     }
 
@@ -24,7 +24,7 @@ export default function PWAInstallNotification() {
 
     // Show install notification 1.2s after loading the web version
     const timer = setTimeout(() => {
-      if (!standalone && !isDismissed) {
+      if (!isDismissed) {
         setIsVisible(true);
       }
     }, 1200);
@@ -148,3 +148,4 @@ export default function PWAInstallNotification() {
     </>
   );
 }
+

@@ -7,6 +7,31 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <title>Karnataka Gym Fitness Centre | Devi Nagar, Hubli</title>
+
+    <!-- Self-Healing Cache Invalidation Script -->
+    <script>
+      (function() {
+        // Automatically recover if a stale service worker served an old chunk hash
+        window.addEventListener('error', function(e) {
+          var target = e.target;
+          if (target && (target.tagName === 'SCRIPT' || target.tagName === 'LINK')) {
+            var hasRecovered = sessionStorage.getItem('kg_auto_recovered');
+            if (!hasRecovered) {
+              sessionStorage.setItem('kg_auto_recovered', 'true');
+              if ('caches' in window) {
+                caches.keys().then(function(keys) {
+                  return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+                }).then(function() {
+                  window.location.reload();
+                });
+              } else {
+                window.location.reload();
+              }
+            }
+          }
+        }, true);
+      })();
+    </script>
     
     <!-- Mobile App & PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes" />

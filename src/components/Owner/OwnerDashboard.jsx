@@ -37,7 +37,7 @@ export default function OwnerDashboard() {
   const [showDailySummaryModal, setShowDailySummaryModal] = useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [selectedKpiModal, setSelectedKpiModal] = useState(null);
-  const [thresholdInput, setThresholdInput] = useState(settings.noShowThresholdDays || 10);
+  const [thresholdInput, setThresholdInput] = useState(settings?.noShowThresholdDays || 10);
 
   const todayStr = new Date().toISOString().split('T')[0];
   const activeMembers = members.filter(m => m.status === 'active');
@@ -185,7 +185,7 @@ export default function OwnerDashboard() {
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="text-2xl font-black text-rose-300">{openNoShowCases.length}</span>
-            <span className="text-xs text-rose-400">Absent {settings.noShowThresholdDays}+ days</span>
+            <span className="text-xs text-rose-400">Absent {settings?.noShowThresholdDays || 10}+ days</span>
           </div>
           <span className="text-[11px] text-rose-300 font-semibold mt-1">
             Action required on Red-List

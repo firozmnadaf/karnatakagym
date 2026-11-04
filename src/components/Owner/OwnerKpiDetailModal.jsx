@@ -441,7 +441,7 @@ export default function OwnerKpiDetailModal({ initialKpi, onClose, onNavigateTab
                 </div>
                 <div className="bg-[#0b0f17] border border-slate-800 p-3.5 rounded-xl">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Configured Threshold</span>
-                  <span className="text-xl font-black text-orange-400">{settings.noShowThresholdDays} Days</span>
+                  <span className="text-xl font-black text-orange-400">{settings?.noShowThresholdDays || 10} Days</span>
                   <span className="text-[11px] text-slate-400 block mt-0.5">Automated 6:00 AM scan</span>
                 </div>
                 <div className="bg-[#0b0f17] border border-slate-800 p-3.5 rounded-xl">

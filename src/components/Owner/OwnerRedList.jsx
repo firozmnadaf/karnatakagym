@@ -104,7 +104,7 @@ export default function OwnerRedList() {
             </span>
           </div>
           <p className="text-xs text-slate-300">
-            Flags members absent {settings.noShowThresholdDays} or more days. Automatically excludes paused, medical freeze, and expired passes.
+            Flags members absent {settings?.noShowThresholdDays || 10} or more days. Automatically excludes paused, medical freeze, and expired passes.
           </p>
         </div>
 

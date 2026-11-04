@@ -28,6 +28,18 @@ export const useGym = () => {
 };
 
 // Web Audio API sound synthesizers for tactile feedback
+const safeStorageGet = (key, fallback) => {
+  try {
+    const saved = localStorage.getItem(key);
+    if (!saved) return fallback;
+    const parsed = JSON.parse(saved);
+    return parsed !== null && parsed !== undefined ? parsed : fallback;
+  } catch (err) {
+    console.warn(`Safe storage fallback for ${key}:`, err);
+    return fallback;
+  }
+};
+
 const playTone = (frequency, duration, type = 'sine') => {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -65,71 +77,20 @@ export const GymProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState('home'); // Role-dependent active tab
   const [activeMemberId, setActiveMemberId] = useState('mem_12'); // default active: Ananya Kulkarni
 
-  // Core Data Tables State (with LocalStorage persistence)
-  const [members, setMembers] = useState(() => {
-    const saved = localStorage.getItem('kg_members');
-    return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
-  });
-
-  const [plans, setPlans] = useState(() => {
-    const saved = localStorage.getItem('kg_plans');
-    return saved ? JSON.parse(saved) : INITIAL_PLANS;
-  });
-
-  const [staff, setStaff] = useState(() => {
-    const saved = localStorage.getItem('kg_staff');
-    return saved ? JSON.parse(saved) : INITIAL_STAFF;
-  });
-
-  const [addOns, setAddOns] = useState(() => {
-    const saved = localStorage.getItem('kg_addons');
-    return saved ? JSON.parse(saved) : INITIAL_ADDONS;
-  });
-
-  const [streaks, setStreaks] = useState(() => {
-    const saved = localStorage.getItem('kg_streaks');
-    return saved ? JSON.parse(saved) : INITIAL_STREAKS;
-  });
-
-  const [noShowCases, setNoShowCases] = useState(() => {
-    const saved = localStorage.getItem('kg_noshow_cases');
-    return saved ? JSON.parse(saved) : INITIAL_NO_SHOW_CASES;
-  });
-
-  const [followUps, setFollowUps] = useState(() => {
-    const saved = localStorage.getItem('kg_followups');
-    return saved ? JSON.parse(saved) : INITIAL_FOLLOW_UPS;
-  });
-
-  const [attendance, setAttendance] = useState(() => {
-    const saved = localStorage.getItem('kg_attendance');
-    return saved ? JSON.parse(saved) : INITIAL_ATTENDANCE;
-  });
-
-  const [payments, setPayments] = useState(() => {
-    const saved = localStorage.getItem('kg_payments');
-    return saved ? JSON.parse(saved) : INITIAL_PAYMENTS;
-  });
-
-  const [addOnOrders, setAddOnOrders] = useState(() => {
-    const saved = localStorage.getItem('kg_addon_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ADDON_ORDERS;
-  });
-
-  const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem('kg_notifications');
-    return saved ? JSON.parse(saved) : INITIAL_NOTIFICATIONS;
-  });
-
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem('kg_settings');
-    return saved ? JSON.parse(saved) : INITIAL_SETTINGS;
-  });
-
-  const [auditLogs, setAuditLogs] = useState(() => {
-    const saved = localStorage.getItem('kg_audit_logs');
-    return saved ? JSON.parse(saved) : INITIAL_AUDIT_LOGS;
-  });
+  // Core Data Tables State (with LocalStorage persistence and safe fallbacks)
+  const [members, setMembers] = useState(() => safeStorageGet('kg_members', INITIAL_MEMBERS));
+  const [plans, setPlans] = useState(() => safeStorageGet('kg_plans', INITIAL_PLANS));
+  const [staff, setStaff] = useState(() => safeStorageGet('kg_staff', INITIAL_STAFF));
+  const [addOns, setAddOns] = useState(() => safeStorageGet('kg_addons', INITIAL_ADDONS));
+  const [streaks, setStreaks] = useState(() => safeStorageGet('kg_streaks', INITIAL_STREAKS));
+  const [noShowCases, setNoShowCases] = useState(() => safeStorageGet('kg_noshow_cases', INITIAL_NO_SHOW_CASES));
+  const [followUps, setFollowUps] = useState(() => safeStorageGet('kg_followups', INITIAL_FOLLOW_UPS));
+  const [attendance, setAttendance] = useState(() => safeStorageGet('kg_attendance', INITIAL_ATTENDANCE));
+  const [payments, setPayments] = useState(() => safeStorageGet('kg_payments', INITIAL_PAYMENTS));
+  const [addOnOrders, setAddOnOrders] = useState(() => safeStorageGet('kg_addon_orders', INITIAL_ADDON_ORDERS));
+  const [notifications, setNotifications] = useState(() => safeStorageGet('kg_notifications', INITIAL_NOTIFICATIONS));
+  const [settings, setSettings] = useState(() => safeStorageGet('kg_settings', INITIAL_SETTINGS));
+  const [auditLogs, setAuditLogs] = useState(() => safeStorageGet('kg_audit_logs', INITIAL_AUDIT_LOGS));
 
   // Offline Check-In Queue
   const [offlineSyncQueue, setOfflineSyncQueue] = useState([]);
