@@ -44,7 +44,7 @@ export default function MemberSettings({ onBack }) {
   return (
     <div className="space-y-4 pb-6 text-slate-100">
       {/* Top Header Row */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onBack}
@@ -55,7 +55,6 @@ export default function MemberSettings({ onBack }) {
         <h3 className="text-sm font-extrabold text-white">
           Preferences and Privacy
         </h3>
-        <span className="text-xs text-slate-400">Member Controls</span>
       </div>
 
       {/* Saved Toast */}
