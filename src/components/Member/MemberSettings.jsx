@@ -7,7 +7,8 @@ import {
   Lock,
   Smartphone,
   Download,
-  LogOut
+  LogOut,
+  KeyRound
 } from 'lucide-react';
 import InstallAppModal from '../Common/InstallAppModal';
 
