@@ -745,9 +745,9 @@ export const INITIAL_STREAKS = {
     memberId: 'mem_12',
     currentStreakDays: 18,
     bestStreakDays: 24,
-    weeklyGoalDays: 5,
+    weeklyGoalDays: 6,
     weeklyVisitsCompleted: 4,
-    plannedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    plannedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     lastVisitDate: getOffsetDate(0),
     isFairStreakPreserved: true,
     streakHistory: ['Mon (Attended)', 'Tue (Attended)', 'Wed (Attended)', 'Thu (Attended Today)']

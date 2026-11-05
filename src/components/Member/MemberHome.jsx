@@ -167,16 +167,16 @@ export default function MemberHome({ onNavigate }) {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-white">
-              {activeMemberStreak.weeklyVisitsCompleted || 3}
+              {activeMemberStreak.weeklyVisitsCompleted ?? 4}
             </span>
-            <span className="text-xs text-slate-300 font-semibold">/ {activeMemberStreak.weeklyGoalDays || 4} Target Visits</span>
+            <span className="text-xs text-slate-300 font-semibold">/ {activeMemberStreak.weeklyGoalDays || 6} Target Visits</span>
           </div>
           {/* Solid Progress Bar (No purple-to-blue gradient) */}
           <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
             <div
               className="bg-emerald-500 h-full rounded-full transition-all duration-300"
               style={{
-                width: `${Math.min(100, (((activeMemberStreak.weeklyVisitsCompleted || 3) / (activeMemberStreak.weeklyGoalDays || 4)) * 100))}%`
+                width: `${Math.min(100, (((activeMemberStreak.weeklyVisitsCompleted ?? 4) / (activeMemberStreak.weeklyGoalDays || 6)) * 100))}%`
               }}
             ></div>
           </div>

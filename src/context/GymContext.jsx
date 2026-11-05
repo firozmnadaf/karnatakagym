@@ -126,7 +126,17 @@ export const GymProvider = ({ children }) => {
   const [plans, setPlans] = useState(() => safeStorageGet('kg_plans', INITIAL_PLANS));
   const [staff, setStaff] = useState(() => safeStorageGet('kg_staff', INITIAL_STAFF));
   const [addOns, setAddOns] = useState(() => safeStorageGet('kg_addons', INITIAL_ADDONS));
-  const [streaks, setStreaks] = useState(() => safeStorageGet('kg_streaks', INITIAL_STREAKS));
+  const [streaks, setStreaks] = useState(() => {
+    const saved = safeStorageGet('kg_streaks', INITIAL_STREAKS);
+    if (saved && saved.mem_12 && saved.mem_12.weeklyGoalDays !== 6) {
+      saved.mem_12 = {
+        ...saved.mem_12,
+        weeklyGoalDays: 6,
+        plannedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      };
+    }
+    return saved;
+  });
   const [noShowCases, setNoShowCases] = useState(() => safeStorageGet('kg_noshow_cases', INITIAL_NO_SHOW_CASES));
   const [followUps, setFollowUps] = useState(() => safeStorageGet('kg_followups', INITIAL_FOLLOW_UPS));
   const [attendance, setAttendance] = useState(() => safeStorageGet('kg_attendance', INITIAL_ATTENDANCE));
@@ -590,9 +600,9 @@ export const GymProvider = ({ children }) => {
     memberId: activeMemberId,
     currentStreakDays: currentUser?.fairStreak ?? 18,
     bestStreakDays: 24,
-    weeklyGoalDays: 4,
+    weeklyGoalDays: 6,
     weeklyVisitsCompleted: 4,
-    plannedDays: ['Mon', 'Tue', 'Thu', 'Sat'],
+    plannedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     isFairStreakPreserved: true
   };
 
