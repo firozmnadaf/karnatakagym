@@ -14,7 +14,8 @@ import {
   User,
   X,
   Upload,
-  ShieldCheck
+  ShieldCheck,
+  Shield
 } from 'lucide-react';
 import InstallAppModal from '../Common/InstallAppModal';
 
@@ -24,7 +25,8 @@ export default function MemberSettings({ onBack }) {
     updateCommPreferences,
     updateMemberProfile,
     logout,
-    currentUser
+    currentUser,
+    setCurrentRole
   } = useGym();
 
   const [savedToast, setSavedToast] = useState(false);
@@ -286,6 +288,32 @@ export default function MemberSettings({ onBack }) {
         >
           <Download className="w-3.5 h-3.5" />
           <span>Install</span>
+        </button>
+      </div>
+
+      {/* Gym Owner & Manager Security Portal */}
+      <div className="bg-[#111726] border border-amber-500/30 p-4 rounded-xl flex items-center justify-between gap-3 shadow-lg shadow-amber-950/20">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+            <Shield className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-xs font-bold text-white block">Gym Owner Portal</span>
+            <span className="text-[11px] text-slate-400">
+              Cockpit, plans, member approvals & payments
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setCurrentRole('owner');
+            window.location.hash = '#owner';
+          }}
+          className="bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors shrink-0 shadow-md shadow-amber-950/40"
+        >
+          <Shield className="w-3.5 h-3.5" />
+          <span>Owner Login</span>
         </button>
       </div>
 

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useGym } from '../../context/GymContext';
-import { Shield, Lock, ArrowRight, ArrowLeft, KeyRound, AlertCircle } from 'lucide-react';
+import { Shield, Lock, ArrowRight, ArrowLeft, KeyRound, AlertCircle, LogIn } from 'lucide-react';
 
 export default function OwnerSecurityGate({ onCancel }) {
-  const { loginDemoAccount, currentGym } = useGym();
+  const { loginDemoAccount, currentGym, setCurrentRole } = useGym();
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
@@ -22,9 +22,9 @@ export default function OwnerSecurityGate({ onCancel }) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto my-8 p-6 bg-[#0f1422] border border-slate-800 rounded-2xl shadow-2xl">
+    <div className="w-full max-w-md mx-auto my-6 p-6 bg-[#0f1422] border border-slate-800 rounded-2xl shadow-2xl">
       <div className="flex flex-col items-center text-center space-y-3">
-        <div className="w-14 h-14 rounded-2xl bg-orange-600/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-inner">
+        <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
           <Shield className="w-7 h-7" />
         </div>
         <div>
@@ -53,7 +53,7 @@ export default function OwnerSecurityGate({ onCancel }) {
                 if (error) setError('');
               }}
               placeholder="Enter PIN (e.g. 1300)"
-              className="w-full bg-[#080b12] border border-slate-700 text-white pl-10 pr-4 py-2.5 rounded-xl text-sm font-mono tracking-widest focus:outline-none focus:border-orange-500 transition-colors"
+              className="w-full bg-[#080b12] border border-slate-700 text-white pl-10 pr-4 py-2.5 rounded-xl text-sm font-mono tracking-widest focus:outline-none focus:border-amber-500 transition-colors"
               autoFocus
             />
           </div>
@@ -68,20 +68,32 @@ export default function OwnerSecurityGate({ onCancel }) {
 
         <button
           type="submit"
-          className="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-orange-950/40"
+          className="w-full py-2.5 px-4 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-amber-950/40"
         >
           <KeyRound className="w-4 h-4" />
           <span>Unlock Owner Cockpit</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 
-        <div className="pt-2 border-t border-slate-800">
+        <div className="pt-2 border-t border-slate-800 space-y-2">
           <button
             type="button"
             onClick={handleQuickUnlock}
-            className="w-full py-2 px-3 bg-[#162032] hover:bg-[#1a263c] border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-medium transition-colors"
+            className="w-full py-2.5 px-3 bg-[#162032] hover:bg-[#1a263c] border border-amber-500/40 text-amber-300 hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow"
           >
-            Instant Owner Access (Testing PIN: 1300)
+            <span>Instant Owner Access (Testing PIN: 1300)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setCurrentRole('owner-login');
+              window.location.hash = '#owner-login';
+            }}
+            className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5"
+          >
+            <LogIn className="w-3.5 h-3.5 text-slate-400" />
+            <span>Switch to Email & Password Login</span>
           </button>
         </div>
 

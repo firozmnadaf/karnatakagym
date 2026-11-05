@@ -27,7 +27,8 @@ export default function MemberLogin({ initialTab = 'member', onBack }) {
     loginDemoAccount,
     registerGym,
     authError,
-    authLoading
+    authLoading,
+    setCurrentRole
   } = useGym();
 
   const [activeTab, setActiveTab] = useState(initialTab); // 'member' | 'owner' | 'register_gym'
@@ -375,6 +376,18 @@ export default function MemberLogin({ initialTab = 'member', onBack }) {
             >
               <span>{authLoading ? 'Verifying...' : 'Unlock Owner Cockpit'}</span>
               <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentRole('owner');
+                window.location.hash = '#owner';
+              }}
+              className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white py-2 px-3 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+              <span>Use Owner Security PIN Gate (Default: 1300)</span>
             </button>
 
             <div className="text-center pt-2">
