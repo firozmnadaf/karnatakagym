@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 import {
   INITIAL_MEMBERS,
   INITIAL_PLANS,
@@ -71,11 +72,22 @@ const playErrorBuzzer = () => {
 };
 
 export const GymProvider = ({ children }) => {
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(() => safeStorageGet('kg_current_user', null));
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState(null);
+
   // App Role & Navigation State
-  const [currentRole, setCurrentRole] = useState('member'); // 'member' | 'owner' | 'frontdesk' | 'automations' | 'testing' | 'database'
+  const [currentRole, setCurrentRole] = useState(() => {
+    const savedUser = safeStorageGet('kg_current_user', null);
+    return savedUser?.role === 'owner' ? 'owner' : 'member';
+  });
   const [viewMode, setViewMode] = useState('mobile'); // 'mobile' | 'desktop'
   const [activeTab, setActiveTab] = useState('home'); // Role-dependent active tab
-  const [activeMemberId, setActiveMemberId] = useState('mem_12'); // default active: Ananya Kulkarni
+  const [activeMemberId, setActiveMemberId] = useState(() => {
+    const savedUser = safeStorageGet('kg_current_user', null);
+    return savedUser?.id || 'mem_12';
+  });
 
   // Core Data Tables State (with LocalStorage persistence and safe fallbacks)
   const [members, setMembers] = useState(() => safeStorageGet('kg_members', INITIAL_MEMBERS));
@@ -156,6 +168,215 @@ export const GymProvider = ({ children }) => {
     return () => clearInterval(timer);
   }, []);
 
+  // Sync Supabase Auth session on mount
+  useEffect(() => {
+    if (!supabase) return;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            const userRole = profile?.role || session.user.user_metadata?.role || 'member';
+            const userObj = {
+              id: session.user.id,
+              email: session.user.email,
+              phone: profile?.phone || session.user.phone || '+91 96633 96058',
+              fullName: profile?.full_name || session.user.user_metadata?.full_name || (userRole === 'owner' ? 'Coach Anand (Owner)' : 'Hubli Member'),
+              role: userRole,
+              planName: profile?.plan_name || 'Annual Champion Pass',
+              status: profile?.membership_status || 'active',
+              membershipExpiry: profile?.membership_expiry || '2031-05-03',
+              assignedTrainerId: 'staff_1',
+              assignedMentor: profile?.assigned_mentor || 'Coach Anand Bellad',
+              fairStreak: profile?.fair_streak || 18
+            };
+            setCurrentUser(userObj);
+            localStorage.setItem('kg_current_user', JSON.stringify(userObj));
+          });
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        setCurrentUser(prev => {
+          if (prev && !prev.id.startsWith('mem_12') && !prev.id.startsWith('staff_1')) {
+            return null;
+          }
+          return prev;
+        });
+      }
+    });
+
+    return () => subscription?.unsubscribe();
+  }, []);
+
+  // Authentication Methods: Supabase + Quick Demo Accounts
+  const loginWithSupabase = async ({ email, password, isSignUp, fullName, phone, role = 'member' }) => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      if (!supabase) {
+        throw new Error('Supabase client is not ready. Please verify credentials.');
+      }
+
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              phone: phone,
+              role: role
+            }
+          }
+        });
+        if (error) throw error;
+
+        const newId = data.user?.id || 'mem_' + Date.now();
+        const userObj = {
+          id: newId,
+          email: email,
+          phone: phone || '+91 96633 96058',
+          fullName: fullName,
+          role: role,
+          planName: 'Annual Champion Pass',
+          status: 'active',
+          membershipExpiry: '2031-05-03',
+          assignedTrainerId: 'staff_1',
+          assignedMentor: 'Coach Anand Bellad',
+          fairStreak: 0
+        };
+
+        if (role === 'member') {
+          const newMemberRow = {
+            id: newId,
+            name: fullName,
+            phone: phone || '+91 96633 96058',
+            gender: 'female',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+            planId: 'plan_champion_annual',
+            startDate: new Date().toISOString().split('T')[0],
+            membershipExpiry: '2031-05-03',
+            status: 'active',
+            assignedTrainerId: 'staff_1',
+            emergencyContact: '+91 98860 00000 (Hubli)',
+            medicalNotes: 'None',
+            commPreferences: { whatsapp: true, sms: true, reminders: true, marketingOptOut: false },
+            preferredBatch: 'evening_6pm'
+          };
+          setMembers(prev => [newMemberRow, ...prev]);
+          setActiveMemberId(newId);
+          setCurrentRole('member');
+        } else {
+          setCurrentRole('owner');
+        }
+
+        setCurrentUser(userObj);
+        localStorage.setItem('kg_current_user', JSON.stringify(userObj));
+        return { success: true, user: userObj };
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
+
+        let profile = null;
+        try {
+          const res = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+          profile = res.data;
+        } catch {
+          // ignore profile fetch fallback
+        }
+
+        const userRole = profile?.role || data.user.user_metadata?.role || role;
+        const userObj = {
+          id: data.user.id,
+          email: data.user.email,
+          phone: profile?.phone || data.user.phone || '+91 96633 96058',
+          fullName: profile?.full_name || data.user.user_metadata?.full_name || (userRole === 'owner' ? 'Coach Anand (Owner)' : 'Hubli Member'),
+          role: userRole,
+          planName: profile?.plan_name || 'Annual Champion Pass',
+          status: profile?.membership_status || 'active',
+          membershipExpiry: profile?.membership_expiry || '2031-05-03',
+          assignedTrainerId: 'staff_1',
+          assignedMentor: profile?.assigned_mentor || 'Coach Anand Bellad',
+          fairStreak: profile?.fair_streak || 18
+        };
+
+        if (userRole === 'owner') {
+          setCurrentRole('owner');
+        } else {
+          setCurrentRole('member');
+          setActiveMemberId(data.user.id);
+        }
+
+        setCurrentUser(userObj);
+        localStorage.setItem('kg_current_user', JSON.stringify(userObj));
+        return { success: true, user: userObj };
+      }
+    } catch (err) {
+      console.error('Auth action failed:', err);
+      setAuthError(err.message || 'Authentication failed');
+      return { success: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const loginDemoAccount = (role = 'member') => {
+    let userObj;
+    if (role === 'owner') {
+      userObj = {
+        id: 'staff_1',
+        email: 'owner@karnatakagym.in',
+        fullName: 'Coach Anand Bellad (Owner)',
+        role: 'owner'
+      };
+      setCurrentRole('owner');
+    } else {
+      userObj = {
+        id: 'mem_12',
+        email: 'ananya@karnatakagym.in',
+        fullName: 'Ananya Kulkarni',
+        role: 'member',
+        planName: 'Annual Champion Pass',
+        status: 'active',
+        membershipExpiry: '2031-05-03',
+        assignedTrainerId: 'staff_1',
+        assignedMentor: 'Coach Anand Bellad',
+        fairStreak: 18
+      };
+      setActiveMemberId('mem_12');
+      setCurrentRole('member');
+    }
+    setCurrentUser(userObj);
+    localStorage.setItem('kg_current_user', JSON.stringify(userObj));
+    return { success: true, user: userObj };
+  };
+
+  const logout = async () => {
+    try {
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+    } catch (e) {
+      console.warn('Sign out error:', e);
+    }
+    setCurrentUser(null);
+    localStorage.removeItem('kg_current_user');
+    setCurrentRole('member');
+  };
+
   // Helper: Log an audit event
   const logAudit = (actionType, details, actorId = 'SYSTEM', actorRole = 'SYSTEM') => {
     const newLog = {
@@ -171,14 +392,30 @@ export const GymProvider = ({ children }) => {
   };
 
   // Helper: Get active member object
-  const activeMember = members.find(m => m.id === activeMemberId) || members[0];
-  const activeMemberPlan = plans.find(p => p.id === activeMember.planId);
+  const foundMember = members.find(m => m.id === activeMemberId);
+  const activeMember = foundMember || {
+    id: currentUser?.id || 'mem_current',
+    name: currentUser?.fullName || 'Hubli Member',
+    phone: currentUser?.phone || '+91 96633 96058',
+    gender: 'female',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+    planId: 'plan_champion_annual',
+    startDate: '2024-05-03',
+    membershipExpiry: currentUser?.membershipExpiry || '2031-05-03',
+    status: currentUser?.status || 'active',
+    assignedTrainerId: currentUser?.assignedTrainerId || 'staff_1',
+    emergencyContact: '+91 98860 00000 (Hubli)',
+    medicalNotes: 'None',
+    commPreferences: { whatsapp: true, sms: true, reminders: true, marketingOptOut: false },
+    preferredBatch: 'evening_6pm'
+  };
+  const activeMemberPlan = plans.find(p => p.id === activeMember.planId) || plans[0];
   const activeMemberStreak = streaks[activeMemberId] || {
     memberId: activeMemberId,
-    currentStreakDays: 0,
-    bestStreakDays: 0,
+    currentStreakDays: currentUser?.fairStreak ?? 18,
+    bestStreakDays: 24,
     weeklyGoalDays: 4,
-    weeklyVisitsCompleted: 0,
+    weeklyVisitsCompleted: 4,
     plannedDays: ['Mon', 'Tue', 'Thu', 'Sat'],
     isFairStreakPreserved: true
   };
@@ -1165,6 +1402,14 @@ export const GymProvider = ({ children }) => {
   };
 
   const value = {
+    // Authentication & Current User
+    currentUser,
+    loginWithSupabase,
+    loginDemoAccount,
+    logout,
+    authLoading,
+    authError,
+
     // Role & Navigation
     currentRole,
     setCurrentRole,

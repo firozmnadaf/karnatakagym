@@ -5,16 +5,18 @@ import {
   ArrowLeft,
   CheckCircle,
   Lock,
-  Phone,
   Smartphone,
-  Download
+  Download,
+  LogOut
 } from 'lucide-react';
 import InstallAppModal from '../Common/InstallAppModal';
 
 export default function MemberSettings({ onBack }) {
   const {
     activeMember,
-    updateCommPreferences
+    updateCommPreferences,
+    logout,
+    currentUser
   } = useGym();
 
   const [savedToast, setSavedToast] = useState(false);
@@ -183,6 +185,24 @@ export default function MemberSettings({ onBack }) {
         >
           <Download className="w-3.5 h-3.5" />
           <span>Install</span>
+        </button>
+      </div>
+
+      {/* Member Sign Out Button */}
+      <div className="bg-[#111726] border border-rose-900/40 p-4 rounded-xl flex items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-bold text-white block">Member Session</span>
+          <span className="text-[11px] text-slate-400">
+            Signed in as {currentUser?.fullName || activeMember.name}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={logout}
+          className="bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 hover:text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors shrink-0"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Sign Out</span>
         </button>
       </div>
 

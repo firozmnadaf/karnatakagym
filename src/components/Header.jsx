@@ -10,7 +10,10 @@ import {
   Mail,
   MapPin,
   Check,
-  Download
+  Download,
+  LogOut,
+  Shield,
+  User
 } from 'lucide-react';
 import InstallAppModal from './Common/InstallAppModal';
 
@@ -24,7 +27,9 @@ export default function Header() {
     setActiveMemberId,
     members,
     resetToFactoryData,
-    offlineSyncQueue
+    offlineSyncQueue,
+    currentUser,
+    logout
   } = useGym();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -193,6 +198,25 @@ export default function Header() {
             )}
           </button>
 
+          {/* User Sign Out or Status */}
+          {currentUser ? (
+            <div className="flex items-center gap-1.5 pl-1.5 border-l border-slate-700">
+              <div className="hidden xl:flex flex-col text-right text-[11px] leading-tight">
+                <span className="font-bold text-white truncate max-w-[130px]">{currentUser.fullName}</span>
+                <span className="text-[10px] text-orange-400 capitalize">{currentUser.role === 'owner' ? 'Gym Owner' : 'Member'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={logout}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 hover:text-white text-xs font-bold transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
+          ) : null}
+
           {/* Mobile Hamburger Menu Toggle Button */}
           <button
             type="button"
@@ -205,118 +229,134 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Desktop Navigation Bar */}
-      <div className="hidden md:block border-t border-slate-800 bg-[#0c1018] px-4 py-2">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <nav className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
-            <button
-              type="button"
-              onClick={() => handleNavSelect('member')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
-                currentRole === 'member'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              Member App
-            </button>
+      {/* Desktop Navigation Bar: Gated by Authentication Role */}
+      {currentUser && (
+        <div className="hidden md:block border-t border-slate-800 bg-[#0c1018] px-4 py-2">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+            {currentUser.role === 'owner' ? (
+              <>
+                <nav className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+                  <button
+                    type="button"
+                    onClick={() => handleNavSelect('owner')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
+                      currentRole === 'owner'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
+                    }`}
+                  >
+                    Owner Cockpit
+                  </button>
 
-            <button
-              type="button"
-              onClick={() => handleNavSelect('owner')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
-                currentRole === 'owner'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              Owner Cockpit
-            </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavSelect('frontdesk')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
+                      currentRole === 'frontdesk'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
+                    }`}
+                  >
+                    Front-Desk Terminal
+                  </button>
 
-            <button
-              type="button"
-              onClick={() => handleNavSelect('frontdesk')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
-                currentRole === 'frontdesk'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              Front-Desk Terminal
-            </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavSelect('automations')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
+                      currentRole === 'automations'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
+                    }`}
+                  >
+                    Automations Engine
+                  </button>
 
-            <button
-              type="button"
-              onClick={() => handleNavSelect('automations')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
-                currentRole === 'automations'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              Automations Engine
-            </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavSelect('testing')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
+                      currentRole === 'testing'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
+                    }`}
+                  >
+                    11-Point Test Suite
+                  </button>
 
-            <button
-              type="button"
-              onClick={() => handleNavSelect('testing')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
-                currentRole === 'testing'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              11-Point Test Suite
-            </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavSelect('database')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
+                      currentRole === 'database'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
+                    }`}
+                  >
+                    14 Data Tables
+                  </button>
 
-            <button
-              type="button"
-              onClick={() => handleNavSelect('database')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
-                currentRole === 'database'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
-              }`}
-            >
-              14 Data Tables
-            </button>
-          </nav>
+                  <button
+                    type="button"
+                    onClick={() => handleNavSelect('member')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
+                      currentRole === 'member'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-[#111726] text-slate-200 hover:bg-slate-800 border border-slate-800'
+                    }`}
+                  >
+                    Preview Member App
+                  </button>
+                </nav>
 
-          {/* Quick Member Persona Switcher */}
-          {currentRole === 'member' && (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-300 font-semibold whitespace-nowrap">Testing Persona:</span>
-              <select
-                value={activeMemberId}
-                onChange={(e) => setActiveMemberId(e.target.value)}
-                className="bg-slate-900 border border-slate-700 text-white rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-orange-500 max-w-[240px] truncate"
-              >
-                <optgroup label="Active Regulars">
-                  <option value="mem_12">Ananya Kulkarni (Streak 18d, Active)</option>
-                  <option value="mem_08">Praveen Deshpande (Streak 14d, Expiring in 3d)</option>
-                  <option value="mem_15">Ganesh Navalgund (Active)</option>
-                </optgroup>
-                <optgroup label="Expiring Soon (Within 7d)">
-                  <option value="mem_07">Soumya Belagavi (Expires in 2 days)</option>
-                  <option value="mem_10">Deepa Savanur (Expires Tomorrow)</option>
-                  <option value="mem_09">Kiran Kalghatgi (Expires in 5 days)</option>
-                </optgroup>
-                <optgroup label="Silent Churn / Red List (10-20d absent)">
-                  <option value="mem_01">Basavaraj Patil (Absent 14 days)</option>
-                  <option value="mem_02">Priyanka Joshi (Absent 18 days)</option>
-                  <option value="mem_03">Raghavendra Hubballi (Absent 12 days)</option>
-                  <option value="mem_06">Rekha Shettar (Absent 20 days)</option>
-                </optgroup>
-                <optgroup label="Edge Cases (Paused / Expired / Opted-Out)">
-                  <option value="mem_13">Chetan Dharwad (Approved Medical Pause)</option>
-                  <option value="mem_30">Sunil Bailhongal (Membership Expired)</option>
-                  <option value="mem_16">Aishwarya Haliyal (Marketing Opted Out)</option>
-                </optgroup>
-              </select>
-            </div>
-          )}
+                {/* Owner Persona Testing Switcher */}
+                {currentRole === 'member' && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-slate-300 font-semibold whitespace-nowrap">Testing Persona:</span>
+                    <select
+                      value={activeMemberId}
+                      onChange={(e) => setActiveMemberId(e.target.value)}
+                      className="bg-slate-900 border border-slate-700 text-white rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-orange-500 max-w-[240px] truncate"
+                    >
+                      <optgroup label="Active Regulars">
+                        <option value="mem_12">Ananya Kulkarni (Streak 18d, Active)</option>
+                        <option value="mem_08">Praveen Deshpande (Streak 14d, Expiring in 3d)</option>
+                        <option value="mem_15">Ganesh Navalgund (Active)</option>
+                      </optgroup>
+                      <optgroup label="Expiring Soon (Within 7d)">
+                        <option value="mem_07">Soumya Belagavi (Expires in 2 days)</option>
+                        <option value="mem_10">Deepa Savanur (Expires Tomorrow)</option>
+                        <option value="mem_09">Kiran Kalghatgi (Expires in 5 days)</option>
+                      </optgroup>
+                      <optgroup label="Silent Churn / Red List">
+                        <option value="mem_01">Basavaraj Patil (Absent 14 days)</option>
+                        <option value="mem_02">Priyanka Joshi (Absent 18 days)</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Strictly Member Only View: ZERO Owner Cockpit access or links */
+              <div className="w-full flex items-center justify-between text-xs py-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-orange-400">Hubli Member App</span>
+                  <span className="text-slate-600">|</span>
+                  <span className="text-slate-300 font-medium">
+                    Logged in as <strong className="text-white">{currentUser.fullName}</strong>
+                  </span>
+                  <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
+                    Active Pass
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-slate-400 text-[11px]">
+                  <span>Turnstile QR Access & Streaks Protected</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Mobile Drawer / Sheet Menu */}
       {mobileMenuOpen && (
@@ -325,46 +365,57 @@ export default function Header() {
             Navigation Menu
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { id: 'member', label: 'Member App' },
-              { id: 'owner', label: 'Owner Cockpit' },
-              { id: 'frontdesk', label: 'Front-Desk Desk' },
-              { id: 'automations', label: 'Automations Engine' },
-              { id: 'testing', label: '11-Point Tests' },
-              { id: 'database', label: '14 Database Tables' }
-            ].map(item => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleNavSelect(item.id)}
-                className={`p-2.5 rounded-xl text-left text-xs font-bold transition-colors ${
-                  currentRole === item.id
-                    ? 'bg-orange-600 text-white'
-                    : 'bg-[#141b2b] text-slate-200 border border-slate-800 hover:bg-slate-800'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+          {!currentUser ? (
+            <div className="bg-[#111726] p-3.5 rounded-xl border border-slate-800 text-xs text-slate-300 text-center">
+              Please sign in with your member account to view your pass and workouts.
+            </div>
+          ) : currentUser.role === 'owner' ? (
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { id: 'owner', label: 'Owner Cockpit' },
+                { id: 'frontdesk', label: 'Front-Desk Terminal' },
+                { id: 'automations', label: 'Automations Engine' },
+                { id: 'testing', label: '11-Point Tests' },
+                { id: 'database', label: '14 Database Tables' },
+                { id: 'member', label: 'Preview Member App' }
+              ].map(item => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleNavSelect(item.id)}
+                  className={`p-2.5 rounded-xl text-left text-xs font-bold transition-colors ${
+                    currentRole === item.id
+                      ? 'bg-orange-600 text-white'
+                      : 'bg-[#141b2b] text-slate-200 border border-slate-800 hover:bg-slate-800'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            /* Member only drawer */
+            <div className="bg-[#111726] p-3 rounded-xl border border-slate-800 space-y-1 text-xs">
+              <div className="font-bold text-white">{currentUser.fullName}</div>
+              <div className="text-[11px] text-orange-400">{currentUser.planName || 'Annual Champion Pass'}</div>
+              <div className="text-[11px] text-slate-400">Turnstile QR Check-in & Fair Streak enabled</div>
+            </div>
+          )}
 
-          {/* Member Picker inside Mobile Menu */}
-          <div className="pt-2 border-t border-slate-800 space-y-1.5 text-xs">
-            <span className="font-bold text-slate-300 block">Switch Member Persona:</span>
-            <select
-              value={activeMemberId}
-              onChange={(e) => setActiveMemberId(e.target.value)}
-              className="w-full bg-[#111726] border border-slate-700 text-white rounded-xl p-2.5 text-xs focus:outline-none"
+          {/* User Sign Out in mobile menu */}
+          {currentUser && (
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full p-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-300 font-bold flex items-center justify-center gap-2 text-xs transition-colors"
             >
-              <option value="mem_12">Ananya Kulkarni (Streak 18d, Active)</option>
-              <option value="mem_07">Soumya Belagavi (Expires in 2 days)</option>
-              <option value="mem_01">Basavaraj Patil (Absent 14 days)</option>
-              <option value="mem_13">Chetan Dharwad (Approved Medical Pause)</option>
-              <option value="mem_30">Sunil Bailhongal (Membership Expired)</option>
-              <option value="mem_16">Aishwarya Haliyal (Marketing Opted Out)</option>
-            </select>
-          </div>
+              <LogOut className="w-4 h-4" />
+              <span>Sign Out ({currentUser.fullName})</span>
+            </button>
+          )}
 
           {/* Direct Contact Links inside Mobile Menu */}
           <div className="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-xs">

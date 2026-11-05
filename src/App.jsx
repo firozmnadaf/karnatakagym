@@ -10,27 +10,44 @@ import TestSuiteModal from './components/Testing/TestSuiteModal';
 import DatabaseExplorer from './components/Database/DatabaseExplorer';
 import NotFound from './components/NotFound';
 import PWAInstallNotification from './components/Common/PWAInstallNotification';
+import MemberLogin from './components/Auth/MemberLogin';
 import { Wifi, Battery, Signal } from 'lucide-react';
 
 function MainAppContent() {
-  const { currentRole, setCurrentRole, viewMode } = useGym();
+  const { currentRole, setCurrentRole, viewMode, currentUser } = useGym();
 
   React.useEffect(() => {
     const handleHash = () => {
       const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
       if (!rawHash) return;
+
+      // If user is a member, forbid accessing owner/admin routes
+      if (currentUser && currentUser.role === 'member') {
+        if (['owner', 'frontdesk', 'automations', 'testing', 'database'].includes(rawHash)) {
+          setCurrentRole('member');
+          window.location.hash = '#member';
+          return;
+        }
+      }
+
       const validRoles = ['member', 'owner', 'frontdesk', 'automations', 'testing', 'database'];
       if (validRoles.includes(rawHash)) {
         setCurrentRole(rawHash);
       } else {
-        // Any unknown path or route shows true 404 error page!
         setCurrentRole('notfound');
       }
     };
     handleHash();
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
-  }, [setCurrentRole]);
+  }, [setCurrentRole, currentUser]);
+
+  // Force role to member if user is logged in as a member
+  React.useEffect(() => {
+    if (currentUser && currentUser.role === 'member' && currentRole !== 'member' && currentRole !== 'notfound') {
+      setCurrentRole('member');
+    }
+  }, [currentUser, currentRole, setCurrentRole]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0b0f17] text-slate-100 font-sans selection:bg-orange-600 selection:text-white overflow-x-hidden">
@@ -39,9 +56,14 @@ function MainAppContent() {
 
       {/* Main Body */}
       <main className="flex-1 p-3 md:p-6 flex flex-col items-center justify-start w-full max-w-7xl mx-auto overflow-x-hidden">
-        {/* Custom 404 Route View */}
-        {currentRole === 'notfound' ? (
-          <NotFound onGoHome={() => setCurrentRole('member')} />
+        {/* If user is not logged in, render Member Login screen only */}
+        {!currentUser ? (
+          <div className="w-full flex-1 flex items-center justify-center my-4">
+            <MemberLogin />
+          </div>
+        ) : currentRole === 'notfound' ? (
+          /* Custom 404 Route View */
+          <NotFound onGoHome={() => setCurrentRole(currentUser.role === 'owner' ? 'owner' : 'member')} />
         ) : currentRole === 'member' && viewMode === 'mobile' ? (
           /* Mobile Device Frame View */
           <div className="w-full max-w-[420px] mx-auto my-2">
@@ -75,11 +97,15 @@ function MainAppContent() {
                 <MemberApp />
               </div>
             )}
-            {currentRole === 'owner' && <OwnerDashboard />}
-            {currentRole === 'frontdesk' && <FrontDeskApp />}
-            {currentRole === 'automations' && <AutomationsCenter />}
-            {currentRole === 'testing' && <TestSuiteModal />}
-            {currentRole === 'database' && <DatabaseExplorer />}
+            {currentUser?.role === 'owner' && (
+              <>
+                {currentRole === 'owner' && <OwnerDashboard />}
+                {currentRole === 'frontdesk' && <FrontDeskApp />}
+                {currentRole === 'automations' && <AutomationsCenter />}
+                {currentRole === 'testing' && <TestSuiteModal />}
+                {currentRole === 'database' && <DatabaseExplorer />}
+              </>
+            )}
           </div>
         )}
       </main>
