@@ -10,7 +10,7 @@ import TestSuiteModal from './components/Testing/TestSuiteModal';
 import DatabaseExplorer from './components/Database/DatabaseExplorer';
 import NotFound from './components/NotFound';
 import PWAInstallNotification from './components/Common/PWAInstallNotification';
-import MemberLogin from './components/Auth/MemberLogin';
+import OwnerSecurityGate from './components/Owner/OwnerSecurityGate';
 import { Wifi, Battery, Signal } from 'lucide-react';
 
 function MainAppContent() {
@@ -20,15 +20,6 @@ function MainAppContent() {
     const handleHash = () => {
       const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
       if (!rawHash) return;
-
-      // If user is a member, forbid accessing owner/admin routes
-      if (currentUser && currentUser.role === 'member') {
-        if (['owner', 'frontdesk', 'automations', 'testing', 'database'].includes(rawHash)) {
-          setCurrentRole('member');
-          window.location.hash = '#member';
-          return;
-        }
-      }
 
       const validRoles = ['member', 'owner', 'frontdesk', 'automations', 'testing', 'database'];
       if (validRoles.includes(rawHash)) {
@@ -40,14 +31,7 @@ function MainAppContent() {
     handleHash();
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
-  }, [setCurrentRole, currentUser]);
-
-  // Force role to member if user is logged in as a member
-  React.useEffect(() => {
-    if (currentUser && currentUser.role === 'member' && currentRole !== 'member' && currentRole !== 'notfound') {
-      setCurrentRole('member');
-    }
-  }, [currentUser, currentRole, setCurrentRole]);
+  }, [setCurrentRole]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0b0f17] text-slate-100 font-sans selection:bg-orange-600 selection:text-white overflow-x-hidden">
@@ -56,16 +40,11 @@ function MainAppContent() {
 
       {/* Main Body */}
       <main className="flex-1 p-3 md:p-6 flex flex-col items-center justify-start w-full max-w-7xl mx-auto overflow-x-hidden">
-        {/* If user is not logged in, render Member Login screen only */}
-        {!currentUser ? (
-          <div className="w-full flex-1 flex items-center justify-center my-4">
-            <MemberLogin />
-          </div>
-        ) : currentRole === 'notfound' ? (
+        {currentRole === 'notfound' ? (
           /* Custom 404 Route View */
-          <NotFound onGoHome={() => setCurrentRole(currentUser.role === 'owner' ? 'owner' : 'member')} />
+          <NotFound onGoHome={() => setCurrentRole(currentUser?.role === 'owner' ? 'owner' : 'member')} />
         ) : currentRole === 'member' ? (
-          /* Mobile Device Frame View - Exactly matching Member Mobile App */
+          /* Mobile Device Frame View - Exactly matching Member Mobile App Image */
           <div className="w-full max-w-[420px] mx-auto my-2">
             <div className="relative bg-[#0d121d] border-4 border-slate-700 rounded-[38px] shadow-2xl overflow-hidden">
               {/* Dynamic Notch */}
@@ -89,24 +68,23 @@ function MainAppContent() {
               Karnataka Gym Mobile Access. Turnstile QR Check-In & Streak Protection active.
             </div>
           </div>
-        ) : (
-          /* Wide or Administrative Views */
+        ) : currentUser?.role === 'owner' ? (
+          /* Wide or Administrative Views for Authenticated Gym Owner */
           <div className="w-full">
-            {currentRole === 'member' && (
-              <div className="max-w-xl mx-auto bg-[#101624] border border-slate-800 rounded-2xl p-4 shadow-xl">
-                <MemberApp />
-              </div>
-            )}
-            {currentUser?.role === 'owner' && (
-              <>
-                {currentRole === 'owner' && <OwnerDashboard />}
-                {currentRole === 'frontdesk' && <FrontDeskApp />}
-                {currentRole === 'automations' && <AutomationsCenter />}
-                {currentRole === 'testing' && <TestSuiteModal />}
-                {currentRole === 'database' && <DatabaseExplorer />}
-              </>
-            )}
+            {currentRole === 'owner' && <OwnerDashboard />}
+            {currentRole === 'frontdesk' && <FrontDeskApp />}
+            {currentRole === 'automations' && <AutomationsCenter />}
+            {currentRole === 'testing' && <TestSuiteModal />}
+            {currentRole === 'database' && <DatabaseExplorer />}
           </div>
+        ) : (
+          /* Protected Owner Security Gate if visitor attempts administrative route */
+          <OwnerSecurityGate
+            onCancel={() => {
+              setCurrentRole('member');
+              window.location.hash = '#member';
+            }}
+          />
         )}
       </main>
 

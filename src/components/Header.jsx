@@ -368,9 +368,37 @@ export default function Header() {
             Navigation Menu
           </div>
 
-          {!currentUser ? (
-            <div className="bg-[#111726] p-3.5 rounded-xl border border-slate-800 text-xs text-slate-300 text-center">
-              Please sign in with your member account to view your pass and workouts.
+          {!currentUser || currentUser.role === 'member' ? (
+            <div className="space-y-3">
+              <div className="bg-[#111726] p-3 rounded-xl border border-slate-800 space-y-1 text-xs">
+                <div className="font-bold text-white flex items-center justify-between">
+                  <span>{currentUser?.fullName || 'Ananya Kulkarni'}</span>
+                  <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
+                    Active Pass
+                  </span>
+                </div>
+                <div className="text-[11px] text-orange-400">Annual Champion Pass (mem_12)</div>
+                <div className="text-[11px] text-slate-400">Hubli Turnstile QR Check-in & Fair Streak Active</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentRole('member');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full p-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>Karnataka Gym Member App</span>
+              </button>
+              <div className="pt-2 border-t border-slate-800 text-center">
+                <button
+                  type="button"
+                  onClick={() => handleNavSelect('owner')}
+                  className="text-[11px] text-slate-400 hover:text-orange-400 transition-colors underline"
+                >
+                  Owner Cockpit Access
+                </button>
+              </div>
             </div>
           ) : currentUser.role === 'owner' ? (
             <div className="grid grid-cols-2 gap-2">
