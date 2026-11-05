@@ -17,9 +17,9 @@ export default function MemberApp() {
   const [currentScreen, setCurrentScreen] = useState('home');
 
   return (
-    <div className="flex flex-col h-full min-h-[580px] bg-[#0b0f17] text-slate-100">
-      {/* Screen Content */}
-      <div className="flex-1 p-4 overflow-y-auto">
+    <div className="flex flex-col min-h-screen bg-[#0b0f17] text-slate-100 relative">
+      {/* Screen Content with bottom clearance for fixed navigation */}
+      <div className="flex-1 p-4 pb-24">
         {currentScreen === 'home' && (
           <MemberHome onNavigate={(screen) => setCurrentScreen(screen)} />
         )}
@@ -43,8 +43,8 @@ export default function MemberApp() {
         )}
       </div>
 
-      {/* Mobile Bottom Navigation Bar (Solid dark, no glassmorphism or hover fades) */}
-      <nav className="sticky bottom-0 bg-[#0e1422] border-t border-slate-800 px-3 py-2 flex items-center justify-around z-20">
+      {/* Mobile Bottom Navigation Bar: Permanently FIXED at bottom, never hidden */}
+      <nav className="fixed bottom-0 left-0 right-0 max-w-[440px] mx-auto bg-[#0e1422] border-t border-slate-800 px-3 py-2 flex items-center justify-around z-50 shadow-2xl">
         <button
           type="button"
           onClick={() => setCurrentScreen('home')}
