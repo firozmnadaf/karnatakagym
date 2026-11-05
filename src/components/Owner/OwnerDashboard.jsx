@@ -3,6 +3,7 @@ import { useGym } from '../../context/GymContext';
 import OwnerRedList from './OwnerRedList';
 import OwnerRenewalPipeline from './OwnerRenewalPipeline';
 import OwnerInventoryAddons from './OwnerInventoryAddons';
+import OwnerPlansManager from './OwnerPlansManager';
 import OwnerPauseManager from './OwnerPauseManager';
 import OwnerDailySummaryModal from './OwnerDailySummaryModal';
 import OwnerDataQualityAlerts from './OwnerDataQualityAlerts';
@@ -26,6 +27,8 @@ import {
 export default function OwnerDashboard() {
   const {
     members,
+    plans,
+    addOns,
     attendance,
     noShowCases,
     payments,
@@ -326,6 +329,30 @@ export default function OwnerDashboard() {
 
         <button
           type="button"
+          onClick={() => setActiveOwnerTab('plans')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
+            activeOwnerTab === 'plans'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
+          }`}
+        >
+          Membership Plans ({plans.length})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveOwnerTab('inventory')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
+            activeOwnerTab === 'inventory'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
+          }`}
+        >
+          Add-On Market ({addOns.length})
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveOwnerTab('redlist')}
           className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'redlist'
@@ -346,18 +373,6 @@ export default function OwnerDashboard() {
           }`}
         >
           Renewal Pipeline ({renewalsDueList.length})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveOwnerTab('inventory')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
-            activeOwnerTab === 'inventory'
-              ? 'bg-orange-600 text-white'
-              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
-          }`}
-        >
-          Add-On Stock and PT Sessions
         </button>
 
         <button
@@ -388,9 +403,10 @@ export default function OwnerDashboard() {
       {/* Active Tab View */}
       <div className="pt-1">
         {activeOwnerTab === 'members' && <OwnerMemberList />}
+        {activeOwnerTab === 'plans' && <OwnerPlansManager />}
+        {activeOwnerTab === 'inventory' && <OwnerInventoryAddons />}
         {activeOwnerTab === 'redlist' && <OwnerRedList />}
         {activeOwnerTab === 'renewals' && <OwnerRenewalPipeline />}
-        {activeOwnerTab === 'inventory' && <OwnerInventoryAddons />}
         {activeOwnerTab === 'pauses' && <OwnerPauseManager />}
         {activeOwnerTab === 'quality' && <OwnerDataQualityAlerts />}
       </div>

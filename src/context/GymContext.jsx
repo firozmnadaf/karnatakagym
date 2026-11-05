@@ -179,6 +179,10 @@ export const GymProvider = ({ children }) => {
   }, [payments]);
 
   useEffect(() => {
+    localStorage.setItem('kg_plans', JSON.stringify(plans));
+  }, [plans]);
+
+  useEffect(() => {
     localStorage.setItem('kg_addons', JSON.stringify(addOns));
   }, [addOns]);
 
@@ -1180,6 +1184,104 @@ export const GymProvider = ({ children }) => {
     logAudit('SETTINGS_UPDATED', `Gym operating settings updated: ${JSON.stringify(newSettings)}`, 'staff_1', 'OWNER');
   };
 
+  // Membership Plans Management (Owner Control)
+  const addPlan = (planData) => {
+    const id = planData.id || `plan_${Date.now()}`;
+    const code = planData.code || `${planData.name.substring(0, 3).toUpperCase()}${planData.durationDays || '30'}`;
+    const newPlan = {
+      id,
+      code,
+      name: planData.name,
+      durationDays: Number(planData.durationDays) || 30,
+      basePrice: Number(planData.basePrice) || 0,
+      discountPrice: Number(planData.discountPrice) || Number(planData.basePrice) || 0,
+      isPopular: Boolean(planData.isPopular),
+      features: Array.isArray(planData.features)
+        ? planData.features
+        : (typeof planData.features === 'string' ? planData.features.split('\n').map(s => s.trim()).filter(Boolean) : []),
+      terms: planData.terms || 'Non-transferable. Pause protection applies as per gym guidelines.'
+    };
+    setPlans(prev => [...prev, newPlan]);
+    logAudit('PLAN_CREATED', `Owner added membership plan "${newPlan.name}" (₹${newPlan.discountPrice}, ${newPlan.durationDays} days).`, 'owner_1', 'OWNER');
+    return { success: true, plan: newPlan };
+  };
+
+  const updatePlan = (planId, updatedFields) => {
+    setPlans(prev => prev.map(p => {
+      if (p.id === planId) {
+        const updated = {
+          ...p,
+          ...updatedFields,
+          durationDays: updatedFields.durationDays !== undefined ? Number(updatedFields.durationDays) : p.durationDays,
+          basePrice: updatedFields.basePrice !== undefined ? Number(updatedFields.basePrice) : p.basePrice,
+          discountPrice: updatedFields.discountPrice !== undefined ? Number(updatedFields.discountPrice) : p.discountPrice,
+          features: Array.isArray(updatedFields.features)
+            ? updatedFields.features
+            : (typeof updatedFields.features === 'string' ? updatedFields.features.split('\n').map(s => s.trim()).filter(Boolean) : p.features)
+        };
+        logAudit('PLAN_UPDATED', `Owner updated plan "${updated.name}" (Price: ₹${updated.discountPrice}).`, 'owner_1', 'OWNER');
+        return updated;
+      }
+      return p;
+    }));
+    return { success: true };
+  };
+
+  const deletePlan = (planId) => {
+    const target = plans.find(p => p.id === planId);
+    if (!target) return { success: false, error: 'Plan not found' };
+    setPlans(prev => prev.filter(p => p.id !== planId));
+    logAudit('PLAN_DELETED', `Owner deleted membership plan "${target.name}".`, 'owner_1', 'OWNER');
+    return { success: true };
+  };
+
+  // Add-On Marketplace Item Management (Owner Control)
+  const addAddOn = (itemData) => {
+    const id = itemData.id || `addon_${Date.now()}`;
+    const newItem = {
+      id,
+      category: itemData.category || 'SUPPLEMENT',
+      title: itemData.title,
+      description: itemData.description || '',
+      price: Number(itemData.price) || 0,
+      unit: itemData.unit || '1 Unit',
+      stockCapacity: Number(itemData.stockCapacity) || 0,
+      cancellationTerms: itemData.cancellationTerms || 'Unopened items exchangeable within 48 hours.',
+      badge: itemData.badge || (Number(itemData.stockCapacity) > 0 ? 'In Stock' : 'Out of Stock'),
+      trainerId: itemData.trainerId || null,
+      trainerName: itemData.trainerName || null,
+      trainerBio: itemData.trainerBio || null
+    };
+    setAddOns(prev => [...prev, newItem]);
+    logAudit('ADDON_CREATED', `Owner added marketplace product "${newItem.title}" (₹${newItem.price}, Stock: ${newItem.stockCapacity}).`, 'owner_1', 'OWNER');
+    return { success: true, item: newItem };
+  };
+
+  const updateAddOn = (addOnId, updatedFields) => {
+    setAddOns(prev => prev.map(a => {
+      if (a.id === addOnId) {
+        const updated = {
+          ...a,
+          ...updatedFields,
+          price: updatedFields.price !== undefined ? Number(updatedFields.price) : a.price,
+          stockCapacity: updatedFields.stockCapacity !== undefined ? Number(updatedFields.stockCapacity) : a.stockCapacity
+        };
+        logAudit('ADDON_UPDATED', `Owner updated marketplace item "${updated.title}" (Price: ₹${updated.price}, Stock: ${updated.stockCapacity}).`, 'owner_1', 'OWNER');
+        return updated;
+      }
+      return a;
+    }));
+    return { success: true };
+  };
+
+  const deleteAddOn = (addOnId) => {
+    const target = addOns.find(a => a.id === addOnId);
+    if (!target) return { success: false, error: 'Item not found' };
+    setAddOns(prev => prev.filter(a => a.id !== addOnId));
+    logAudit('ADDON_DELETED', `Owner removed marketplace item "${target.title}".`, 'owner_1', 'OWNER');
+    return { success: true };
+  };
+
   // Add a New Member (Universal Multi-Tenant with Member ID & PIN)
   const addMember = (memberData) => {
     const newId = 'mem_' + Date.now();
@@ -1676,6 +1778,12 @@ export const GymProvider = ({ children }) => {
     toggleMembershipPause,
     updateCommPreferences,
     updateSettings,
+    addPlan,
+    updatePlan,
+    deletePlan,
+    addAddOn,
+    updateAddOn,
+    deleteAddOn,
 
     // Automations
     runDailyNoShowScan,
