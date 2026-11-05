@@ -10,7 +10,6 @@ import DatabaseExplorer from './components/Database/DatabaseExplorer';
 import NotFound from './components/NotFound';
 import PWAInstallNotification from './components/Common/PWAInstallNotification';
 import OwnerSecurityGate from './components/Owner/OwnerSecurityGate';
-import { Wifi, Battery, Signal } from 'lucide-react';
 
 function MainAppContent() {
   const { currentRole, setCurrentRole, currentUser } = useGym();
@@ -47,18 +46,6 @@ function MainAppContent() {
     <div className="min-h-screen bg-[#070a10] text-slate-100 font-sans selection:bg-orange-600 selection:text-white flex justify-center items-start">
       {/* Pure Mobile-Only Application Viewport */}
       <div className="w-full max-w-[440px] min-h-screen bg-[#0b0f17] flex flex-col shadow-2xl relative border-x border-slate-800/40">
-        
-        {/* Dynamic Mobile Status Bar (9:41 AM Hubli 5G) */}
-        <header className="sticky top-0 z-30 w-full bg-[#080b12] pt-2 px-5 pb-2 flex items-center justify-between text-[11px] font-semibold text-slate-300 border-b border-slate-800 select-none">
-          <span className="font-bold text-white tracking-tight">9:41 AM</span>
-          <div className="flex items-center gap-1.5 text-slate-300">
-            <span className="text-[10px] text-slate-400 font-medium">Hubli 5G</span>
-            <Signal className="w-3 h-3 text-slate-300" />
-            <Wifi className="w-3 h-3 text-slate-300" />
-            <Battery className="w-4 h-4 text-emerald-400" />
-          </div>
-        </header>
-
         {/* Mobile Viewport Body */}
         <main className="flex-1 flex flex-col w-full">
           {currentRole === 'notfound' ? (
