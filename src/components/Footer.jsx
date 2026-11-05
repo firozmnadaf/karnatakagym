@@ -12,7 +12,7 @@ export default function Footer() {
 
         {/* Official Developer Attribution */}
         <div className="text-slate-300 text-xs text-center sm:text-right">
-          Website Developed by <strong className="text-white font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
+          Developed by <strong className="text-white font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
           <a
             href="tel:+919663396058"
             className="text-orange-400 hover:text-orange-300 font-bold underline underline-offset-2"

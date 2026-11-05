@@ -43,7 +43,7 @@ Operating Hours: 6:00 AM - 9:00 PM
 - Anomaly Count: ${summary.auditChecks.length}
 ${summary.auditChecks.length === 0 ? '- System Status: All records clean and verified.' : summary.auditChecks.map(a => `- [${a.type}] ${a.message}`).join('\n')}
 
-Website Developed by Ayesha Tech Studio | Contact: +91 96633 96058
+Developed by Ayesha Tech Studio | Contact: +91 96633 96058
 ========================================
     `.trim();
 

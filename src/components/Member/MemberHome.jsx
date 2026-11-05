@@ -281,7 +281,7 @@ export default function MemberHome({ onNavigate }) {
       {/* Official Developer Attribution & Copyright */}
       <div className="pt-4 border-t border-slate-900 text-center space-y-1.5 text-slate-500 text-[11px] pb-2">
         <div>
-          Website Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
+          Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
           <a
             href="tel:+919663396058"
             className="text-orange-400 hover:text-orange-300 font-bold underline underline-offset-2"

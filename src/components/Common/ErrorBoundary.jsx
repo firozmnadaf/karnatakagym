@@ -67,7 +67,7 @@ export default class ErrorBoundary extends React.Component {
             </button>
 
             <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-500">
-              Website Developed by Ayesha Tech Studio | Contact: +91 96633 96058
+              Developed by Ayesha Tech Studio | Contact: +91 96633 96058
             </div>
           </div>
         </div>
