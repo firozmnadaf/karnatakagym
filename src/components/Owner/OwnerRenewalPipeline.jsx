@@ -13,7 +13,8 @@ export default function OwnerRenewalPipeline() {
     plans,
     payments,
     processRefund,
-    runRenewalRemindersScan
+    runRenewalRemindersScan,
+    currentGym
   } = useGym();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -148,7 +149,9 @@ export default function OwnerRenewalPipeline() {
                     </td>
                     <td className="py-2.5 px-3 text-right">
                       <a
-                        href={`https://wa.me/${m.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaskara ${m.name}! Your Karnataka Gym membership is due for renewal on ${m.membershipExpiry}. Visit the desk or renew in the app!`)}`}
+                        href={`https://wa.me/${m.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                          `Namaskara ${m.name},\n\nYour membership at ${currentGym?.name || 'Karnataka Gym Fitness Centre'} is due for renewal on ${m.membershipExpiry}.\n\nRenew early to maintain your fair attendance streak and active pass benefits. You can renew at the desk or via UPI to ${currentGym?.upiVpa || 'feroznadaf13008@ybl'}.\n\nWarm regards,\n${currentGym?.name || 'Karnataka Gym Fitness Centre'}\n📍 ${currentGym?.address || 'Devi Nagar, Hubli - 580031'}\n📞 Contact: ${currentGym?.ownerPhone || '+91 96633 96058'}`
+                        )}`}
                         target="_blank"
                         rel="noreferrer"
                         className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 px-2.5 py-1 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 transition-colors"

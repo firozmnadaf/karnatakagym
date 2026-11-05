@@ -33,6 +33,7 @@ export default function OwnerKpiDetailModal({ initialKpi, onClose, onNavigateTab
     plans,
     staff,
     settings,
+    currentGym,
     processCheckIn,
     recordFollowUpOutcome
   } = useGym();
@@ -97,10 +98,24 @@ export default function OwnerKpiDetailModal({ initialKpi, onClose, onNavigateTab
   };
 
   const handleOpenWhatsApp = (member, absentDays) => {
-    const text = encodeURIComponent(
-      `Namaskara ${member.name}! We noticed you haven't visited Karnataka Gym Devi Nagar for the last ${absentDays} days. Our team wants to check if everything is okay with your workout routine. Let us know if you need slot adjustments or trainer guidance!`
-    );
-    window.open(`https://wa.me/${member.phone.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
+    const gymName = currentGym?.name || 'Karnataka Gym Fitness Centre';
+    const gymAddress = currentGym?.address || 'Devi Nagar, Hubli - 580031';
+    const gymPhone = currentGym?.ownerPhone || '+91 96633 96058';
+
+    const message = `Namaskara ${member.name},
+
+We noticed that you haven't visited ${gymName} for the past ${absentDays} days. We hope everything is well with you!
+
+Consistency is key to your progress, and our team is here to support you. Please let us know if you need to adjust your workout timings or need any guidance with your routine.
+
+Looking forward to seeing you back at the gym!
+
+Warm regards,
+${gymName}
+📍 ${gymAddress}
+📞 Contact: ${gymPhone}`;
+
+    window.open(`https://wa.me/${member.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (
@@ -577,7 +592,9 @@ export default function OwnerKpiDetailModal({ initialKpi, onClose, onNavigateTab
                           <td className="p-3 font-bold text-amber-400">{diff} Days Left</td>
                           <td className="p-3 text-right">
                             <a
-                              href={`https://wa.me/${m.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaskara ${m.name}! Your Karnataka Gym membership expires on ${m.membershipExpiry}. Renew early via UPI (feroznadaf13008@ybl) to maintain your workout streak!`)}`}
+                              href={`https://wa.me/${m.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                                `Namaskara ${m.name},\n\nYour membership at ${currentGym?.name || 'Karnataka Gym Fitness Centre'} is due for renewal on ${m.membershipExpiry}.\n\nRenew early to maintain your fair streak and locker access. You can renew at the desk or via UPI (${currentGym?.upiVpa || 'feroznadaf13008@ybl'}).\n\nWarm regards,\n${currentGym?.name || 'Karnataka Gym Fitness Centre'}\n📍 ${currentGym?.address || 'Devi Nagar, Hubli - 580031'}\n📞 Contact: ${currentGym?.ownerPhone || '+91 96633 96058'}`
+                              )}`}
                               target="_blank"
                               rel="noreferrer"
                               className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 px-2.5 py-1 rounded-lg text-[11px] font-bold inline-flex items-center gap-1"

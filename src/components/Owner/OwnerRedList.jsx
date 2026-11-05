@@ -23,7 +23,8 @@ export default function OwnerRedList() {
     recordFollowUpOutcome,
     removeMember,
     settings,
-    runDailyNoShowScan
+    runDailyNoShowScan,
+    currentGym
   } = useGym();
 
   const [selectedCase, setSelectedCase] = useState(null);
@@ -83,11 +84,25 @@ export default function OwnerRedList() {
     setTimeout(() => setActionSuccessToast(null), 3000);
   };
 
-  const handleOpenWhatsApp = (member, absentDays, trainer) => {
-    const text = encodeURIComponent(
-      `Namaskara ${member.name}! We noticed you haven't visited Karnataka Gym Devi Nagar for the last ${absentDays} days. Coach ${trainer?.name || 'Kavita'} and our team want to check if everything is okay with your workout schedule. Let us know if you need slot adjustments or routine support!`
-    );
-    window.open(`https://wa.me/${member.phone.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
+  const handleOpenWhatsApp = (member, absentDays) => {
+    const gymName = currentGym?.name || 'Karnataka Gym Fitness Centre';
+    const gymAddress = currentGym?.address || 'Devi Nagar, Hubli - 580031';
+    const gymPhone = currentGym?.ownerPhone || '+91 96633 96058';
+
+    const message = `Namaskara ${member.name},
+
+We noticed that you haven't visited ${gymName} for the past ${absentDays} days. We hope everything is well with you!
+
+Consistency is key to your progress, and our team is here to support you. Please let us know if you need to adjust your workout timings or need any guidance with your routine.
+
+Looking forward to seeing you back at the gym!
+
+Warm regards,
+${gymName}
+📍 ${gymAddress}
+📞 Contact: ${gymPhone}`;
+
+    window.open(`https://wa.me/${member.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (
@@ -291,7 +306,7 @@ export default function OwnerRedList() {
                     {/* WhatsApp */}
                     <button
                       type="button"
-                      onClick={() => handleOpenWhatsApp(member, c.daysAbsent, trainer)}
+                      onClick={() => handleOpenWhatsApp(member, c.daysAbsent)}
                       className="px-2.5 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-xs font-semibold flex items-center gap-1 transition-colors"
                       title="Send WhatsApp Nudge"
                     >
