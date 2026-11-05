@@ -62,7 +62,7 @@ export default function MemberAddOns({ onBack }) {
   return (
     <div className="space-y-4 pb-6 text-slate-100">
       {/* Top Header Row */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onBack}
@@ -73,7 +73,6 @@ export default function MemberAddOns({ onBack }) {
         <h3 className="text-sm font-extrabold text-white">
           Add-On Marketplace
         </h3>
-        <span className="text-xs text-slate-400">Hubli Gym Store</span>
       </div>
 
       {/* Category Pills (Solid colors, no gradient text) */}
