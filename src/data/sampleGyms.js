@@ -6,7 +6,7 @@ export const INITIAL_GYMS = [
     name: 'Karnataka Gym Fitness Centre',
     city: 'Hubli',
     address: 'Devi Nagar, Hubli - 580031',
-    ownerName: 'Coach Anand Bellad',
+    ownerName: 'Ayesha Tech Studio',
     ownerEmail: 'owner@karnatakagym.in',
     ownerPhone: '+91 96633 96058',
     upiVpa: 'feroznadaf13008@ybl',

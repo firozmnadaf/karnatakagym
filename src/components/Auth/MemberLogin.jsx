@@ -538,7 +538,7 @@ export default function MemberLogin({ initialTab = 'member', onBack }) {
               <div className="font-bold text-orange-400 flex items-center gap-1">
                 <span>Owner Cockpit</span>
               </div>
-              <div className="text-slate-400 text-[10px]">Coach Anand Bellad</div>
+              <div className="text-slate-400 text-[10px]">Ayesha Tech Studio</div>
             </button>
           </div>
         </div>

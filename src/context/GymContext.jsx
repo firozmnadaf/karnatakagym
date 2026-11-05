@@ -90,8 +90,14 @@ const playErrorBuzzer = () => {
 
 export const GymProvider = ({ children }) => {
   // Universal Multi-Tenant Gym Registry State
-  const [gyms, setGyms] = useState(() => safeStorageGet('kg_gyms', INITIAL_GYMS));
-  const [currentGym, setCurrentGym] = useState(() => safeStorageGet('kg_current_gym', INITIAL_GYMS[0]));
+  const [gyms, setGyms] = useState(() => {
+    const saved = safeStorageGet('kg_gyms', INITIAL_GYMS);
+    return saved.map(g => g.gymCode === 'KG01' && (g.ownerName?.includes('Anand') || !g.ownerName) ? { ...g, ownerName: 'Ayesha Tech Studio' } : g);
+  });
+  const [currentGym, setCurrentGym] = useState(() => {
+    const saved = safeStorageGet('kg_current_gym', INITIAL_GYMS[0]);
+    return saved?.gymCode === 'KG01' && (saved?.ownerName?.includes('Anand') || !saved?.ownerName) ? { ...saved, ownerName: 'Ayesha Tech Studio' } : saved;
+  });
 
   useEffect(() => {
     localStorage.setItem('kg_gyms', JSON.stringify(gyms));
@@ -102,7 +108,13 @@ export const GymProvider = ({ children }) => {
   }, [currentGym]);
 
   // Authentication State
-  const [currentUser, setCurrentUser] = useState(() => safeStorageGet('kg_current_user', null));
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = safeStorageGet('kg_current_user', null);
+    if (saved && saved.role === 'owner' && (saved.fullName?.includes('Anand') || !saved.fullName)) {
+      saved.fullName = 'Ayesha Tech Studio';
+    }
+    return saved;
+  });
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
 
@@ -231,7 +243,7 @@ export const GymProvider = ({ children }) => {
               id: session.user.id,
               email: session.user.email,
               phone: profile?.phone || session.user.phone || '+91 96633 96058',
-              fullName: profile?.full_name || session.user.user_metadata?.full_name || (userRole === 'owner' ? 'Coach Anand (Owner)' : 'Hubli Member'),
+              fullName: profile?.full_name || session.user.user_metadata?.full_name || (userRole === 'owner' ? 'Ayesha Tech Studio' : 'Hubli Member'),
               role: userRole,
               planName: profile?.plan_name || 'Annual Champion Pass',
               status: profile?.membership_status || 'active',
@@ -349,7 +361,7 @@ export const GymProvider = ({ children }) => {
           id: data.user.id,
           email: data.user.email,
           phone: profile?.phone || data.user.phone || '+91 96633 96058',
-          fullName: profile?.full_name || data.user.user_metadata?.full_name || (userRole === 'owner' ? 'Coach Anand (Owner)' : 'Hubli Member'),
+          fullName: profile?.full_name || data.user.user_metadata?.full_name || (userRole === 'owner' ? 'Ayesha Tech Studio' : 'Hubli Member'),
           role: userRole,
           planName: profile?.plan_name || 'Annual Champion Pass',
           status: profile?.membership_status || 'active',
@@ -385,7 +397,7 @@ export const GymProvider = ({ children }) => {
       userObj = {
         id: 'staff_1',
         email: 'owner@karnatakagym.in',
-        fullName: 'Coach Anand Bellad (Owner)',
+        fullName: 'Ayesha Tech Studio',
         role: 'owner'
       };
       setCurrentRole('owner');
