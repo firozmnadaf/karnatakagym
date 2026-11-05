@@ -216,14 +216,11 @@ export default function MemberSettings({ onBack }) {
       </div>
 
       {/* Developer Attribution */}
-      <div className="text-center pt-3 pb-1 text-[11px] text-slate-500 space-y-1">
-        <div>Karnataka Gym &bull; Devi Nagar, Hubli - 580031</div>
-        <div>
-          Website Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
-          <a href="tel:+919663396058" className="text-orange-400 font-bold underline">
-            +91 96633 96058
-          </a>
-        </div>
+      <div className="text-center pt-3 pb-1 text-[11px] text-slate-500">
+        Website Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
+        <a href="tel:+919663396058" className="text-orange-400 font-bold underline">
+          +91 96633 96058
+        </a>
       </div>
 
       {/* Install App Modal */}

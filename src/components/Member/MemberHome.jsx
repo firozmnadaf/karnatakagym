@@ -280,9 +280,6 @@ export default function MemberHome({ onNavigate }) {
 
       {/* Official Developer Attribution & Copyright */}
       <div className="pt-4 border-t border-slate-900 text-center space-y-1.5 text-slate-500 text-[11px] pb-2">
-        <div className="font-semibold text-slate-400">
-          Karnataka Gym Fitness Centre &bull; Devi Nagar, Hubli
-        </div>
         <div>
           Website Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
           <a
