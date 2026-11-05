@@ -216,6 +216,34 @@ export default function MemberSettings({ onBack }) {
         </p>
       </div>
 
+      {/* Gym Owner Portal Link */}
+      <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl flex items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-bold text-slate-200 block">Gym Management</span>
+          <span className="text-[11px] text-slate-400">Owner cockpit & turnstile management</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            window.location.hash = '#owner';
+          }}
+          className="bg-slate-900 hover:bg-slate-800 text-orange-400 hover:text-orange-300 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors shrink-0"
+        >
+          Owner Portal
+        </button>
+      </div>
+
+      {/* Developer Attribution */}
+      <div className="text-center pt-3 pb-1 text-[11px] text-slate-500 space-y-1">
+        <div>Karnataka Gym &bull; Devi Nagar, Hubli - 580031</div>
+        <div>
+          Website Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
+          <a href="tel:+919663396058" className="text-orange-400 font-bold underline">
+            +91 96633 96058
+          </a>
+        </div>
+      </div>
+
       {/* Install App Modal */}
       <InstallAppModal
         isOpen={showInstallModal}
