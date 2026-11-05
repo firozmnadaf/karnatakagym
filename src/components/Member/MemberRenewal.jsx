@@ -326,17 +326,6 @@ export default function MemberRenewal({ onBack }) {
         </div>
       )}
 
-      {/* Test Bank Failure Scenario (Requirement Safety Test) */}
-      <div className="pt-2">
-        <button
-          type="button"
-          onClick={() => handleSimulatePayment('FAILED')}
-          disabled={isProcessing}
-          className="w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200 py-2 px-3 rounded-xl text-xs font-semibold transition-colors"
-        >
-          Simulate Bank / Gateway Failure (Verifies Membership Is NOT Extended)
-        </button>
-      </div>
     </div>
   );
 }
