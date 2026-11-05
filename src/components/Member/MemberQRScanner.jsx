@@ -18,6 +18,7 @@ import confetti from 'canvas-confetti';
 export default function MemberQRScanner({ onBack, onNavigateRenewal }) {
   const {
     activeMember,
+    activeMemberStreak,
     gymQRToken,
     processCheckIn,
     isOfflineSimulated,
@@ -245,22 +246,34 @@ export default function MemberQRScanner({ onBack, onNavigateRenewal }) {
           <span>Scan Live Entrance QR Code</span>
         </button>
 
-        <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-          <button
-            type="button"
-            onClick={() => handleScanAction('INVALID_EXTERNAL_CODE')}
-            className="bg-slate-900 hover:bg-slate-800 active:bg-slate-950 border border-slate-800 text-slate-300 py-2.5 px-3 rounded-xl transition-colors font-semibold"
-          >
-            Test Invalid QR Code
-          </button>
+        {/* Member Active Streak Display */}
+        <div className="bg-[#111726] border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-orange-600/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+              <Flame className="w-6 h-6 text-orange-500 fill-orange-500" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Your Fair Streak
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-white">
+                  {activeMemberStreak?.currentStreakDays ?? 18}
+                </span>
+                <span className="text-xs font-semibold text-slate-300">
+                  Consecutive Days
+                </span>
+              </div>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => handleScanAction(gymQRToken.token)}
-            className="bg-slate-900 hover:bg-slate-800 active:bg-slate-950 border border-slate-800 text-slate-300 py-2.5 px-3 rounded-xl transition-colors font-semibold"
-          >
-            Test Duplicate Check-In
-          </button>
+          <div className="text-right border-l border-slate-800 pl-3">
+            <div className="text-[10px] text-slate-400 uppercase font-bold">Personal Best</div>
+            <div className="text-sm font-extrabold text-amber-400 font-mono">
+              {activeMemberStreak?.bestStreakDays ?? 24} Days
+            </div>
+            <div className="text-[10px] text-emerald-400 font-medium">Protected</div>
+          </div>
         </div>
       </div>
     </div>
