@@ -11,14 +11,24 @@ export default function Footer() {
         </div>
 
         {/* Official Developer Attribution */}
-        <div className="text-slate-300 text-xs text-center sm:text-right">
-          Developed by <strong className="text-white font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
-          <a
-            href="tel:+919663396058"
-            className="text-orange-400 hover:text-orange-300 font-bold underline underline-offset-2"
-          >
-            +91 96633 96058
-          </a>
+        <div className="text-slate-300 text-xs text-center sm:text-right space-y-0.5">
+          <div>Developed by <strong className="text-white font-bold">Ayesha Tech Studio</strong></div>
+          <div>
+            Contact:{' '}
+            <a
+              href="tel:+919743247790"
+              className="text-orange-400 hover:text-orange-300 font-bold underline underline-offset-2"
+            >
+              +91 97432 47790
+            </a>{' '}
+            |{' '}
+            <a
+              href="mailto:ayeshatechstudio@gmail.com"
+              className="text-orange-400 hover:text-orange-300 font-bold underline underline-offset-2"
+            >
+              ayeshatechstudio@gmail.com
+            </a>
+          </div>
         </div>
       </div>
     </footer>

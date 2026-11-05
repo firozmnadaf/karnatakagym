@@ -92,11 +92,21 @@ export const GymProvider = ({ children }) => {
   // Universal Multi-Tenant Gym Registry State
   const [gyms, setGyms] = useState(() => {
     const saved = safeStorageGet('kg_gyms', INITIAL_GYMS);
-    return saved.map(g => g.gymCode === 'KG01' && (g.ownerName?.includes('Anand') || !g.ownerName) ? { ...g, ownerName: 'Ayesha Tech Studio' } : g);
+    return saved.map(g => g.gymCode === 'KG01' ? {
+      ...g,
+      ownerName: 'Ayesha Tech Studio',
+      ownerEmail: 'ayeshatechstudio@gmail.com',
+      ownerPhone: '+91 97432 47790'
+    } : g);
   });
   const [currentGym, setCurrentGym] = useState(() => {
     const saved = safeStorageGet('kg_current_gym', INITIAL_GYMS[0]);
-    return saved?.gymCode === 'KG01' && (saved?.ownerName?.includes('Anand') || !saved?.ownerName) ? { ...saved, ownerName: 'Ayesha Tech Studio' } : saved;
+    return saved?.gymCode === 'KG01' ? {
+      ...saved,
+      ownerName: 'Ayesha Tech Studio',
+      ownerEmail: 'ayeshatechstudio@gmail.com',
+      ownerPhone: '+91 97432 47790'
+    } : saved;
   });
 
   useEffect(() => {
@@ -110,8 +120,10 @@ export const GymProvider = ({ children }) => {
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = safeStorageGet('kg_current_user', null);
-    if (saved && saved.role === 'owner' && (saved.fullName?.includes('Anand') || !saved.fullName)) {
+    if (saved && saved.role === 'owner') {
       saved.fullName = 'Ayesha Tech Studio';
+      saved.email = 'ayeshatechstudio@gmail.com';
+      saved.phone = '+91 97432 47790';
     }
     return saved;
   });
@@ -395,8 +407,9 @@ export const GymProvider = ({ children }) => {
     let userObj;
     if (role === 'owner') {
       userObj = {
-        id: 'staff_1',
-        email: 'owner@karnatakagym.in',
+        id: 'owner_ayesha',
+        email: 'ayeshatechstudio@gmail.com',
+        phone: '+91 97432 47790',
         fullName: 'Ayesha Tech Studio',
         role: 'owner'
       };

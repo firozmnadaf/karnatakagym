@@ -279,17 +279,27 @@ export default function MemberHome({ onNavigate }) {
       </div>
 
       {/* Official Developer Attribution & Copyright */}
-      <div className="pt-4 border-t border-slate-900 text-center space-y-1.5 text-slate-500 text-[11px] pb-2">
+      <div className="pt-4 border-t border-slate-900 text-center space-y-1 text-slate-500 text-[11px] pb-2">
         <div>
-          Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
+          Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong>
+        </div>
+        <div>
+          Contact:{' '}
           <a
-            href="tel:+919663396058"
+            href="tel:+919743247790"
             className="text-orange-400 hover:text-orange-300 font-bold underline underline-offset-2"
           >
-            +91 96633 96058
+            +91 97432 47790
+          </a>{' '}
+          |{' '}
+          <a
+            href="mailto:ayeshatechstudio@gmail.com"
+            className="text-orange-400 hover:text-orange-300 font-bold underline underline-offset-2"
+          >
+            ayeshatechstudio@gmail.com
           </a>
         </div>
-        <div className="text-[10px] text-slate-600">
+        <div className="text-[10px] text-slate-600 pt-0.5">
           &copy; {new Date().getFullYear()} Karnataka Gym. All rights reserved.
         </div>
       </div>

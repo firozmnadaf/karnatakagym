@@ -318,11 +318,20 @@ export default function MemberSettings({ onBack }) {
       </div>
 
       {/* Developer Attribution */}
-      <div className="text-center pt-3 pb-1 text-[11px] text-slate-500">
-        Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong> | Contact:{' '}
-        <a href="tel:+919663396058" className="text-orange-400 font-bold underline">
-          +91 96633 96058
-        </a>
+      <div className="text-center pt-3 pb-1 text-[11px] text-slate-500 space-y-0.5">
+        <div>
+          Developed by <strong className="text-slate-300 font-bold">Ayesha Tech Studio</strong>
+        </div>
+        <div>
+          Contact:{' '}
+          <a href="tel:+919743247790" className="text-orange-400 font-bold underline">
+            +91 97432 47790
+          </a>{' '}
+          |{' '}
+          <a href="mailto:ayeshatechstudio@gmail.com" className="text-orange-400 font-bold underline">
+            ayeshatechstudio@gmail.com
+          </a>
+        </div>
       </div>
 
       {/* Install App Modal */}

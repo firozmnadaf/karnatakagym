@@ -344,7 +344,7 @@ export default function MemberLogin({ initialTab = 'member', onBack }) {
                   type="email"
                   value={ownerEmail}
                   onChange={(e) => setOwnerEmail(e.target.value)}
-                  placeholder="owner@karnatakagym.in"
+                  placeholder="ayeshatechstudio@gmail.com"
                   className="w-full bg-[#080b13] border border-slate-700 rounded-xl py-2.5 pl-9 pr-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-orange-500"
                   required
                 />
@@ -538,7 +538,7 @@ export default function MemberLogin({ initialTab = 'member', onBack }) {
               <div className="font-bold text-orange-400 flex items-center gap-1">
                 <span>Owner Cockpit</span>
               </div>
-              <div className="text-slate-400 text-[10px]">Ayesha Tech Studio</div>
+              <div className="text-slate-400 text-[10px]">Ayesha Tech Studio • 9743247790</div>
             </button>
           </div>
         </div>

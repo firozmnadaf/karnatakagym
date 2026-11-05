@@ -1066,7 +1066,7 @@ export const INITIAL_SETTINGS = {
   womenSafeHours: '10:30 AM - 1:00 PM and 4:30 PM - 6:00 PM',
   rating: 4.9,
   totalReviews: 642,
-  supportPhone: '+91 96633 96058',
+  supportPhone: '+91 97432 47790',
   upiVpa: 'feroznadaf13008@ybl',
   upiPayeeName: 'Karnataka Gym Fitness Centre'
 };

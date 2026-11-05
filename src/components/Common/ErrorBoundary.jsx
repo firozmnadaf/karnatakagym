@@ -66,8 +66,11 @@ export default class ErrorBoundary extends React.Component {
               <span>Clean Cache & Reload System</span>
             </button>
 
-            <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-500">
-              Developed by Ayesha Tech Studio | Contact: +91 96633 96058
+            <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-500 space-y-0.5">
+              <div>Developed by Ayesha Tech Studio</div>
+              <div>
+                Contact: <a href="tel:+919743247790" className="text-orange-400 font-semibold underline">+91 97432 47790</a> | <a href="mailto:ayeshatechstudio@gmail.com" className="text-orange-400 font-semibold underline">ayeshatechstudio@gmail.com</a>
+              </div>
             </div>
           </div>
         </div>
