@@ -7,8 +7,7 @@ import {
   Lock,
   Smartphone,
   Download,
-  LogOut,
-  KeyRound
+  LogOut
 } from 'lucide-react';
 import InstallAppModal from '../Common/InstallAppModal';
 
@@ -215,69 +214,6 @@ export default function MemberSettings({ onBack }) {
         <p className="text-[11px] text-slate-300 leading-relaxed">
           We never store raw credit card numbers or UPI security pins. All attendance logs, payment receipts, and membership pause requests are preserved with cryptographic timestamps in compliance with consumer standards.
         </p>
-      </div>
-
-      {/* Universal Gym Portals & Authentication */}
-      <div className="bg-[#111726] border border-slate-800 p-4 rounded-xl space-y-3">
-        <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-          <KeyRound className="w-4 h-4 text-orange-400" /> Universal Gym Portals
-        </h4>
-        <p className="text-xs text-slate-400">
-          Sign into your personal member pass, access owner management, or register a new gym.
-        </p>
-
-        <div className="grid grid-cols-1 gap-2 pt-1">
-          {/* 1. Member Login */}
-          <div className="bg-[#0b0f17] border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold text-white block">Member Login / Switch Pass</span>
-              <span className="text-[11px] text-slate-400">Enter Gym Code, Member ID & PIN</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = '#login';
-              }}
-              className="bg-orange-600 hover:bg-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0"
-            >
-              Member Sign In
-            </button>
-          </div>
-
-          {/* 2. Owner Login */}
-          <div className="bg-[#0b0f17] border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold text-white block">Gym Owner Portal</span>
-              <span className="text-[11px] text-slate-400">Manage turnstile, members & attendances</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = '#owner';
-              }}
-              className="bg-slate-800 hover:bg-slate-700 text-orange-400 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0"
-            >
-              Owner Login
-            </button>
-          </div>
-
-          {/* 3. Register New Gym */}
-          <div className="bg-[#0b0f17] border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold text-white block">Register New Gym</span>
-              <span className="text-[11px] text-slate-400">Add your fitness centre to the universal platform</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = '#register-gym';
-              }}
-              className="bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0"
-            >
-              Register Gym
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Developer Attribution */}
