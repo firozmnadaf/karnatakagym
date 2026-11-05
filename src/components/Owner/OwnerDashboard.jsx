@@ -4,6 +4,7 @@ import OwnerRedList from './OwnerRedList';
 import OwnerRenewalPipeline from './OwnerRenewalPipeline';
 import OwnerInventoryAddons from './OwnerInventoryAddons';
 import OwnerPlansManager from './OwnerPlansManager';
+import OwnerPaymentsManager from './OwnerPaymentsManager';
 import OwnerPauseManager from './OwnerPauseManager';
 import OwnerDailySummaryModal from './OwnerDailySummaryModal';
 import OwnerDataQualityAlerts from './OwnerDataQualityAlerts';
@@ -341,6 +342,18 @@ export default function OwnerDashboard() {
 
         <button
           type="button"
+          onClick={() => setActiveOwnerTab('payments')}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
+            activeOwnerTab === 'payments'
+              ? 'bg-orange-600 text-white'
+              : 'bg-[#111726] text-slate-200 hover:text-white border border-slate-800 hover:bg-slate-800'
+          }`}
+        >
+          Payments & Receipts ({payments.length})
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveOwnerTab('inventory')}
           className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
             activeOwnerTab === 'inventory'
@@ -404,6 +417,7 @@ export default function OwnerDashboard() {
       <div className="pt-1">
         {activeOwnerTab === 'members' && <OwnerMemberList />}
         {activeOwnerTab === 'plans' && <OwnerPlansManager />}
+        {activeOwnerTab === 'payments' && <OwnerPaymentsManager />}
         {activeOwnerTab === 'inventory' && <OwnerInventoryAddons />}
         {activeOwnerTab === 'redlist' && <OwnerRedList />}
         {activeOwnerTab === 'renewals' && <OwnerRenewalPipeline />}
