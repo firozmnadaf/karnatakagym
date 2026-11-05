@@ -10,9 +10,10 @@ import DatabaseExplorer from './components/Database/DatabaseExplorer';
 import NotFound from './components/NotFound';
 import PWAInstallNotification from './components/Common/PWAInstallNotification';
 import OwnerSecurityGate from './components/Owner/OwnerSecurityGate';
+import { LogOut } from 'lucide-react';
 
 function MainAppContent() {
-  const { currentRole, setCurrentRole, currentUser } = useGym();
+  const { currentRole, setCurrentRole, currentUser, logout } = useGym();
 
   React.useEffect(() => {
     const handleHash = () => {
@@ -100,16 +101,26 @@ function MainAppContent() {
                     </button>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentRole('member');
-                    window.location.hash = '#member';
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-slate-800 text-orange-400 font-bold whitespace-nowrap hover:bg-slate-700 transition-colors"
-                >
-                  Member App
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentRole('member');
+                      window.location.hash = '#member';
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-slate-800 text-orange-400 font-bold whitespace-nowrap hover:bg-slate-700 transition-colors"
+                  >
+                    Member App
+                  </button>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="p-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 hover:text-white transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               {currentRole === 'owner' && <OwnerDashboard />}

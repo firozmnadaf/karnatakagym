@@ -445,7 +445,8 @@ export const GymProvider = ({ children }) => {
     }
     setCurrentUser(null);
     localStorage.removeItem('kg_current_user');
-    setCurrentRole('member');
+    setCurrentRole('login');
+    window.location.hash = '#login';
   };
 
   // Universal Member ID + PIN Login

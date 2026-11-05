@@ -299,7 +299,9 @@ export default function MemberSettings({ onBack }) {
         </div>
         <button
           type="button"
-          onClick={logout}
+          onClick={async () => {
+            await logout();
+          }}
           className="bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 hover:text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors shrink-0"
         >
           <LogOut className="w-3.5 h-3.5" />
