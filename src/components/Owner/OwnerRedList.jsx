@@ -177,131 +177,146 @@ export default function OwnerRedList() {
             return (
               <div
                 key={c.id}
-                className="bg-[#111726] border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition-colors space-y-3"
+                className={`bg-[#0e1422] border rounded-xl p-3 transition-all space-y-2.5 ${
+                  c.status === 'OPEN'
+                    ? 'border-l-4 border-l-rose-500 border-slate-800 hover:border-slate-700'
+                    : c.status === 'FOLLOWED_UP'
+                    ? 'border-l-4 border-l-amber-500 border-slate-800 hover:border-slate-700'
+                    : 'border-l-4 border-l-emerald-500 border-slate-800 hover:border-slate-700'
+                }`}
               >
-                {/* Top Row: Member Bio, Absent Days, Status */}
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={member.avatar}
-                      alt={member.name}
-                      className="w-11 h-11 rounded-full object-cover border border-slate-700"
-                      width={44}
-                      height={44}
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-white">{member.name}</h4>
-                        {/* Clickable member phone link */}
+                {/* Compact Header: Avatar + Identity + Threat Pill */}
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="relative shrink-0">
+                      <img
+                        src={member.avatar}
+                        alt={member.name}
+                        className="w-9 h-9 rounded-full object-cover border border-slate-700"
+                        width={36}
+                        height={36}
+                      />
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#0e1422] ${
+                          c.status === 'OPEN'
+                            ? 'bg-rose-500 animate-pulse'
+                            : c.status === 'FOLLOWED_UP'
+                            ? 'bg-amber-400'
+                            : 'bg-emerald-400'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-sm font-bold text-white truncate">{member.name}</h4>
                         <a
-                          href={`tel:${member.phone}`}
-                          className="text-xs text-orange-400 hover:text-white font-mono underline font-medium"
+                          href={`tel:${member.phone.replace(/[^0-9]/g, '')}`}
+                          className="text-[11px] text-orange-400 hover:text-orange-300 font-mono underline font-medium"
                           title="Call member directly"
                         >
                           {member.phone}
                         </a>
                       </div>
-                      <div className="text-xs text-slate-300 flex flex-wrap items-center gap-2 mt-0.5">
+                      <div className="text-[11px] text-slate-400 flex items-center gap-1.5 truncate mt-0.5">
                         <span className="text-amber-400 font-semibold">{plan ? plan.name : 'Standard'}</span>
-                        <span>|</span>
-                        <span>Expires: {member.membershipExpiry}</span>
-                        <span>|</span>
-                        <span>Slot: {member.preferredSlot}</span>
+                        <span>&bull;</span>
+                        <span>{member.preferredSlot}</span>
+                        <span>&bull;</span>
+                        <span>Exp: {member.membershipExpiry}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Absent Days Badge & Case Status */}
-                  <div className="flex items-center gap-2">
-                    <div className="bg-rose-950 border border-rose-800 px-3 py-1 rounded-xl text-center">
-                      <span className="text-[10px] uppercase font-bold text-rose-300 block">Absent</span>
-                      <span className="text-sm font-black text-rose-200">{c.daysAbsent} Days</span>
-                    </div>
-
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider ${
-                      c.status === 'OPEN'
-                        ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                        : c.status === 'FOLLOWED_UP'
-                        ? 'bg-amber-950 text-amber-300 border border-amber-800'
-                        : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                    }`}>
+                  {/* Threat Pill: Days Absent & Status */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 text-[10px] font-mono font-extrabold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
+                      {c.daysAbsent}d Absent
+                    </span>
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                        c.status === 'OPEN'
+                          ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                          : c.status === 'FOLLOWED_UP'
+                          ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                          : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                      }`}
+                    >
                       {c.status.replace('_', ' ')}
                     </span>
                   </div>
                 </div>
 
-                {/* Middle Row: Last Check-In, Latest Follow-Up */}
-                <div className="bg-[#0b0f17] p-3 rounded-lg border border-slate-800 text-xs text-slate-300 grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Last Check-In</span>
-                    <strong className="text-white">
-                      {member.lastCheckIn
-                        ? new Date(member.lastCheckIn).toLocaleDateString('en-IN', {
-                            month: 'short',
-                            day: 'numeric'
-                          })
-                        : 'Never'}
-                    </strong>
+                {/* Inline Telemetry Strip */}
+                <div className="bg-[#080c14] border border-slate-800/80 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-400 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3 h-3 text-slate-500 shrink-0" />
+                    <span>Last visit: <strong className="text-white font-mono">{member.lastCheckIn ? new Date(member.lastCheckIn).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : 'Never'}</strong></span>
                   </div>
 
-                  <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Latest Follow-Up</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500">Follow-up:</span>
                     {latestFollowUp ? (
                       <span className="text-amber-300 font-medium">
                         {latestFollowUp.outcome} ({new Date(latestFollowUp.loggedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })})
                       </span>
                     ) : (
-                      <span className="text-slate-400">No contact yet</span>
+                      <span className="text-slate-500 italic">No contact yet</span>
                     )}
+                  </div>
+
+                  <div className="text-[10px] text-slate-500 hidden sm:inline">
+                    {c.historyNotes}
                   </div>
                 </div>
 
-                {/* Bottom Row: Actions (Call, WhatsApp, Mark Outcome) */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800">
-                  <div className="text-xs text-slate-300">
+                {/* Compact Tactical Action Bar */}
+                <div className="flex items-center justify-between gap-2 pt-0.5">
+                  <div className="text-[10px] text-slate-500 truncate hidden xs:block">
                     {c.historyNotes}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {/* Call Action */}
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    {/* Call */}
                     <a
                       href={`tel:${member.phone.replace(/[^0-9]/g, '')}`}
-                      className="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1 transition-colors"
                       title="Direct Phone Call"
                     >
-                      <Phone className="w-3.5 h-3.5 text-orange-400" />
+                      <Phone className="w-3 h-3 text-orange-400" />
                       <span>Call</span>
                     </a>
 
-                    {/* WhatsApp Action with Hubli Template */}
+                    {/* WhatsApp */}
                     <button
                       type="button"
                       onClick={() => handleOpenWhatsApp(member, c.daysAbsent, trainer)}
-                      className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                      title="Send WhatsApp Message"
+                      className="px-2.5 py-1 rounded-lg bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-xs font-semibold flex items-center gap-1 transition-colors"
+                      title="Send WhatsApp Nudge"
                     >
-                      <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <MessageCircle className="w-3 h-3 text-emerald-400" />
                       <span>WhatsApp Nudge</span>
                     </button>
 
-                    {/* Mark Outcome Modal Trigger */}
+                    {/* Mark Outcome */}
                     <button
                       type="button"
                       onClick={() => handleOpenOutcomeModal(c)}
-                      className="bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-xs font-bold flex items-center gap-1 transition-colors shadow-sm"
                     >
                       <span>Mark Outcome</span>
                       <ArrowRight className="w-3 h-3" />
                     </button>
 
-                    {/* Remove Member Trigger */}
+                    {/* Remove Member */}
                     <button
                       type="button"
                       onClick={() => setMemberToRemove(member)}
-                      className="bg-slate-900 hover:bg-rose-950 text-slate-400 hover:text-rose-300 border border-slate-800 hover:border-rose-800 p-2 rounded-xl text-xs font-bold transition-colors"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 border border-transparent hover:border-rose-900 transition-colors"
                       title="Remove member profile"
                     >
-                      <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
