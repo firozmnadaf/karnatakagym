@@ -42,16 +42,19 @@ export default function UPIPaymentCheckout({
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleAutoFillUtr = () => {
-    const randomUtr = Math.floor(100000000000 + Math.random() * 900000000000).toString();
-    setUtrNumber(randomUtr);
-    setValidationError('');
-  };
-
   const handleVerify = () => {
-    const finalUtr = utrNumber.trim() || `UPI-YBL-${Date.now().toString().slice(-8)}`;
+    const cleanUtr = utrNumber.trim();
+    if (!cleanUtr) {
+      setValidationError('Please enter the 12-digit UPI UTR / Reference Number from your payment app.');
+      return;
+    }
+    if (cleanUtr.length < 10) {
+      setValidationError('Invalid UTR. Please enter the full 12-digit transaction reference number.');
+      return;
+    }
+    setValidationError('');
     onConfirmPayment({
-      utr: finalUtr,
+      utr: cleanUtr,
       amount,
       upiId: targetUpiId
     });
@@ -172,25 +175,19 @@ export default function UPIPaymentCheckout({
 
       {/* UTR / Transaction Reference Verification */}
       <div className="pt-2 border-t border-slate-800 space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-slate-300 font-bold block">
-            UPI UTR / Reference Number (After Payment)
-          </label>
-          <button
-            type="button"
-            onClick={handleAutoFillUtr}
-            className="text-[10px] text-orange-400 hover:text-orange-300 font-semibold underline"
-          >
-            Demo Auto-fill UTR
-          </button>
-        </div>
+        <label className="text-slate-300 font-bold block">
+          UPI UTR / Reference Number (After Payment)
+        </label>
 
         <input
           type="text"
           value={utrNumber}
-          onChange={(e) => setUtrNumber(e.target.value)}
+          onChange={(e) => {
+            setUtrNumber(e.target.value);
+            if (validationError) setValidationError('');
+          }}
           placeholder="e.g. 431289012345 (12-digit UTR)"
-          className="w-full bg-[#0b0f17] border border-slate-700 rounded-xl px-3 py-2 text-white font-mono placeholder-slate-500 focus:outline-none focus:border-orange-500"
+          className={`w-full bg-[#0b0f17] border ${validationError ? 'border-rose-500 ring-1 ring-rose-500' : 'border-slate-700'} rounded-xl px-3 py-2 text-white font-mono placeholder-slate-500 focus:outline-none focus:border-orange-500`}
         />
 
         {validationError && (

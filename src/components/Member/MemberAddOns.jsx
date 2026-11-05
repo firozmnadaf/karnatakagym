@@ -34,6 +34,7 @@ export default function MemberAddOns({ onBack }) {
   });
 
   const handleConfirmUpiPurchase = (item, utr) => {
+    if (!utr || !utr.trim()) return;
     setIsProcessingUpi(true);
 
     setTimeout(() => {

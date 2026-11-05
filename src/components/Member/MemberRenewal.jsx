@@ -38,6 +38,7 @@ export default function MemberRenewal({ onBack }) {
   const isExpired = diffDays < 0;
 
   const handleConfirmUpiPayment = ({ utr, amount, upiId }) => {
+    if (!utr || !utr.trim()) return;
     setIsProcessing(true);
     setPaymentState('PENDING');
 
