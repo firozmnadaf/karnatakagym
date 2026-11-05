@@ -64,8 +64,8 @@ function MainAppContent() {
         ) : currentRole === 'notfound' ? (
           /* Custom 404 Route View */
           <NotFound onGoHome={() => setCurrentRole(currentUser.role === 'owner' ? 'owner' : 'member')} />
-        ) : currentRole === 'member' && viewMode === 'mobile' ? (
-          /* Mobile Device Frame View */
+        ) : currentRole === 'member' ? (
+          /* Mobile Device Frame View - Exactly matching Member Mobile App */
           <div className="w-full max-w-[420px] mx-auto my-2">
             <div className="relative bg-[#0d121d] border-4 border-slate-700 rounded-[38px] shadow-2xl overflow-hidden">
               {/* Dynamic Notch */}
@@ -86,7 +86,7 @@ function MainAppContent() {
             </div>
 
             <div className="text-center text-xs text-slate-400 mt-2">
-              Viewing in Mobile Frame. Click "Wide View" in header for full desktop layout.
+              Karnataka Gym Mobile Access. Turnstile QR Check-In & Streak Protection active.
             </div>
           </div>
         ) : (

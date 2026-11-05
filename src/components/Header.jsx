@@ -29,7 +29,8 @@ export default function Header() {
     resetToFactoryData,
     offlineSyncQueue,
     currentUser,
-    logout
+    logout,
+    currentGym
   } = useGym();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -82,15 +83,15 @@ export default function Header() {
             title="Return to Karnataka Gym Home"
           >
             <div className="w-10 h-10 rounded-xl bg-orange-600 text-white font-extrabold flex items-center justify-center text-sm shadow-sm border border-orange-500">
-              KG
+              {currentGym?.logoText || 'KG'}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base tracking-wide text-white hover:text-orange-400 transition-colors">
-                  KARNATAKA GYM
+                <span className="font-extrabold text-base tracking-wide text-white hover:text-orange-400 transition-colors uppercase">
+                  {currentGym?.name || 'KARNATAKA GYM'}
                 </span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-orange-950 text-orange-400 border border-orange-800">
-                  DEVI NAGAR
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-orange-950 text-orange-400 border border-orange-800 uppercase">
+                  {currentGym?.city || 'DEVI NAGAR'}
                 </span>
               </div>
               <div className="text-xs text-slate-300 flex items-center gap-2 mt-0.5">
@@ -142,35 +143,37 @@ export default function Header() {
             </span>
           )}
 
-          {/* View Mode Toggle: Mobile vs Wide Desktop */}
-          <div className="hidden sm:flex bg-slate-950 border border-slate-800 p-0.5 rounded-lg">
-            <button
-              type="button"
-              onClick={() => setViewMode('mobile')}
-              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
-                viewMode === 'mobile'
-                  ? 'bg-orange-600 text-white'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-              title="Mobile App Viewport Frame"
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>Mobile Frame</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('desktop')}
-              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
-                viewMode === 'desktop'
-                  ? 'bg-orange-600 text-white'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-              title="Responsive Desktop View"
-            >
-              <Monitor className="w-3.5 h-3.5" />
-              <span>Wide View</span>
-            </button>
-          </div>
+          {/* View Mode Toggle: Mobile vs Wide Desktop (For Owner only) */}
+          {currentUser?.role === 'owner' && (
+            <div className="hidden sm:flex bg-slate-950 border border-slate-800 p-0.5 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setViewMode('mobile')}
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                  viewMode === 'mobile'
+                    ? 'bg-orange-600 text-white'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title="Mobile App Viewport Frame"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>Mobile Frame</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('desktop')}
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md transition-colors ${
+                  viewMode === 'desktop'
+                    ? 'bg-orange-600 text-white'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title="Responsive Desktop View"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+                <span>Wide View</span>
+              </button>
+            </div>
+          )}
 
           {/* Download Mobile App Button */}
           <button

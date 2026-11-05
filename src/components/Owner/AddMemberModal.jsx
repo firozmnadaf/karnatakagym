@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useGym } from '../../context/GymContext';
-import { X, UserPlus, AlertCircle, Shield, CheckCircle2 } from 'lucide-react';
+import {
+  X,
+  UserPlus,
+  AlertCircle,
+  Shield,
+  CheckCircle2,
+  Share2,
+  Copy,
+  KeyRound,
+  Check
+} from 'lucide-react';
 
 export default function AddMemberModal({ isOpen, onClose }) {
-  const { plans, staff, addMember } = useGym();
+  const { plans, staff, addMember, currentGym } = useGym();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +29,8 @@ export default function AddMemberModal({ isOpen, onClose }) {
 
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [createdCredentials, setCreatedCredentials] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   // Auto-calculate expiry based on chosen plan
   useEffect(() => {
@@ -35,6 +47,7 @@ export default function AddMemberModal({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrorMsg('');
+    setCreatedCredentials(null);
 
     if (!formData.name.trim()) {
       setErrorMsg('Please enter member full name.');
@@ -50,17 +63,36 @@ export default function AddMemberModal({ isOpen, onClose }) {
     try {
       const res = addMember(formData);
       if (res.success) {
-        setSuccessMsg(`Member ${formData.name} added successfully!`);
-        setTimeout(() => {
-          setSuccessMsg('');
-          onClose();
-        }, 1200);
+        setCreatedCredentials(res);
       } else {
         setErrorMsg(res.message || 'Failed to add member.');
       }
     } catch (err) {
       setErrorMsg(err.message || 'Error creating member profile.');
     }
+  };
+
+  const handleCopy = () => {
+    if (!createdCredentials) return;
+    const text = `Karnataka Gym Mobile Access:\nGym Code: ${currentGym?.gymCode || 'KG01'}\nMember ID: ${createdCredentials.memberCode}\nPIN: ${createdCredentials.pin}\nLogin at: https://karnatakagym.vercel.app`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleResetForAnother = () => {
+    setCreatedCredentials(null);
+    setFormData({
+      name: '',
+      phone: '+91 ',
+      gender: 'Male',
+      planId: 'plan_3m',
+      preferredSlot: 'Morning 6-8 AM',
+      assignedTrainerId: 'staff_1',
+      membershipExpiry: '',
+      emergencyContact: '',
+      notes: ''
+    });
   };
 
   return (
@@ -99,14 +131,81 @@ export default function AddMemberModal({ isOpen, onClose }) {
           </div>
         )}
 
-        {successMsg && (
-          <div className="bg-emerald-950/80 border border-emerald-600 text-emerald-200 p-3 rounded-xl flex items-center gap-2 font-medium">
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-            <span>{successMsg}</span>
-          </div>
-        )}
+        {/* If member was registered, show credentials card */}
+        {createdCredentials ? (
+          <div className="space-y-4 py-2 animate-in fade-in duration-200">
+            <div className="bg-[#0e2417] border border-emerald-500/80 p-4 rounded-xl text-center space-y-2">
+              <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
+              <h4 className="text-base font-extrabold text-white">
+                Member Registered Successfully!
+              </h4>
+              <p className="text-xs text-slate-300">
+                {createdCredentials.member.name} has been added to {currentGym?.name || 'Karnataka Gym'}.
+              </p>
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Credentials Info Box */}
+            <div className="bg-[#0b0f18] border border-slate-800 p-4 rounded-xl space-y-3 font-mono">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <span className="text-slate-400 font-sans text-xs">Gym Code</span>
+                <span className="text-orange-400 font-bold text-sm">{currentGym?.gymCode || 'KG01'}</span>
+              </div>
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <span className="text-slate-400 font-sans text-xs">Member Login ID</span>
+                <span className="text-white font-bold text-sm">{createdCredentials.memberCode}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-400 font-sans text-xs">4-Digit Access PIN</span>
+                <span className="text-emerald-400 font-bold text-sm tracking-widest">{createdCredentials.pin}</span>
+              </div>
+            </div>
+
+            {/* Share and Action Buttons */}
+            <div className="space-y-2 pt-2">
+              <a
+                href={createdCredentials.whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full bg-[#128C7E] hover:bg-[#075E54] text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-lg"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share Member Pass Credentials via WhatsApp</span>
+              </a>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'Copied!' : 'Copy Login Info'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetForAnother}
+                  className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Register Another</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedCredentials(null);
+                  onClose();
+                }}
+                className="w-full text-slate-400 hover:text-white py-2 text-xs font-semibold"
+              >
+                Done / Close Desk
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Member Full Name */}
             <div>
@@ -284,6 +383,7 @@ export default function AddMemberModal({ isOpen, onClose }) {
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

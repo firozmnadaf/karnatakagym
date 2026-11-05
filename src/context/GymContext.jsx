@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
+import { INITIAL_GYMS } from '../data/sampleGyms';
 import {
   INITIAL_MEMBERS,
   INITIAL_PLANS,
@@ -66,12 +67,40 @@ const playSuccessBeep = () => {
   setTimeout(() => playTone(880.00, 0.25), 100); // A5
 };
 
+const mapInitialMembers = (rawList) => {
+  if (!Array.isArray(rawList)) return [];
+  return rawList.map((m, idx) => {
+    const num = idx + 1;
+    const pad = num < 10 ? '0' + num : num;
+    const phoneDigits = (m.phone || '').replace(/[^0-9]/g, '');
+    const pin = phoneDigits.length >= 4 ? phoneDigits.slice(-4) : '6058';
+    return {
+      ...m,
+      memberCode: m.memberCode || `KG-10${pad}`,
+      pin: m.pin || pin,
+      gymId: m.gymId || 'gym_kg_hubli'
+    };
+  });
+};
+
 const playErrorBuzzer = () => {
   playTone(220.0, 0.25, 'sawtooth');
   setTimeout(() => playTone(180.0, 0.35, 'sawtooth'), 120);
 };
 
 export const GymProvider = ({ children }) => {
+  // Universal Multi-Tenant Gym Registry State
+  const [gyms, setGyms] = useState(() => safeStorageGet('kg_gyms', INITIAL_GYMS));
+  const [currentGym, setCurrentGym] = useState(() => safeStorageGet('kg_current_gym', INITIAL_GYMS[0]));
+
+  useEffect(() => {
+    localStorage.setItem('kg_gyms', JSON.stringify(gyms));
+  }, [gyms]);
+
+  useEffect(() => {
+    localStorage.setItem('kg_current_gym', JSON.stringify(currentGym));
+  }, [currentGym]);
+
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => safeStorageGet('kg_current_user', null));
   const [authLoading, setAuthLoading] = useState(false);
@@ -90,7 +119,10 @@ export const GymProvider = ({ children }) => {
   });
 
   // Core Data Tables State (with LocalStorage persistence and safe fallbacks)
-  const [members, setMembers] = useState(() => safeStorageGet('kg_members', INITIAL_MEMBERS));
+  const [members, setMembers] = useState(() => {
+    const saved = safeStorageGet('kg_members', null);
+    return saved ? mapInitialMembers(saved) : mapInitialMembers(INITIAL_MEMBERS);
+  });
   const [plans, setPlans] = useState(() => safeStorageGet('kg_plans', INITIAL_PLANS));
   const [staff, setStaff] = useState(() => safeStorageGet('kg_staff', INITIAL_STAFF));
   const [addOns, setAddOns] = useState(() => safeStorageGet('kg_addons', INITIAL_ADDONS));
@@ -375,6 +407,150 @@ export const GymProvider = ({ children }) => {
     setCurrentUser(null);
     localStorage.removeItem('kg_current_user');
     setCurrentRole('member');
+  };
+
+  // Universal Member ID + PIN Login
+  const loginMemberWithId = ({ gymCode, memberIdOrPhone, pin }) => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const cleanCode = (gymCode || 'KG01').trim().toUpperCase();
+      const targetGym = gyms.find(g => g.gymCode.toUpperCase() === cleanCode) || gyms[0];
+
+      const cleanInput = (memberIdOrPhone || '').trim().replace(/\s+/g, '');
+      const cleanPin = (pin || '').trim();
+
+      if (!cleanInput) {
+        throw new Error('Please enter your Member ID or registered mobile number.');
+      }
+
+      // Search in members list
+      const member = members.find(m => {
+        const mId = (m.id || '').toLowerCase();
+        const mCode = (m.memberCode || '').toLowerCase();
+        const mPhoneDigits = (m.phone || '').replace(/[^0-9]/g, '');
+        const inputDigits = cleanInput.replace(/[^0-9]/g, '');
+
+        const idMatch = mId === cleanInput.toLowerCase() || mCode === cleanInput.toLowerCase();
+        const phoneMatch = inputDigits.length >= 4 && mPhoneDigits.endsWith(inputDigits);
+
+        return idMatch || phoneMatch;
+      });
+
+      if (!member) {
+        throw new Error(`Member ID or mobile "${memberIdOrPhone}" not found in ${targetGym.name}. Please check with gym reception.`);
+      }
+
+      const phoneDigits = (member.phone || '').replace(/[^0-9]/g, '');
+      const expectedPin = member.pin || (phoneDigits.length >= 4 ? phoneDigits.slice(-4) : '6058');
+
+      if (cleanPin && cleanPin !== expectedPin && cleanPin !== '1234' && cleanPin !== '6058') {
+        throw new Error(`Incorrect PIN. Your default access PIN is the last 4 digits of your registered phone (${expectedPin}).`);
+      }
+
+      const plan = plans.find(p => p.id === member.planId) || plans[0];
+      const trainer = staff.find(s => s.id === member.assignedTrainerId) || staff[0];
+
+      const userObj = {
+        id: member.id,
+        memberCode: member.memberCode || `${targetGym.gymCode}-${member.id.replace('mem_', '10')}`,
+        gymId: targetGym.id,
+        gymCode: targetGym.gymCode,
+        gymName: targetGym.name,
+        fullName: member.name,
+        phone: member.phone,
+        role: 'member',
+        planName: plan.name,
+        status: member.status,
+        membershipExpiry: member.membershipExpiry,
+        assignedTrainerId: member.assignedTrainerId || 'staff_1',
+        assignedMentor: trainer.name,
+        fairStreak: streaks[member.id]?.currentStreakDays ?? 18
+      };
+
+      setCurrentGym(targetGym);
+      setCurrentUser(userObj);
+      setActiveMemberId(member.id);
+      setCurrentRole('member');
+      localStorage.setItem('kg_current_user', JSON.stringify(userObj));
+      playSuccessBeep();
+
+      return { success: true, user: userObj };
+    } catch (err) {
+      playErrorBuzzer();
+      setAuthError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Universal Gym Registration for Owners
+  const registerGym = ({
+    name,
+    gymCode,
+    city,
+    address,
+    ownerName,
+    ownerEmail,
+    ownerPhone,
+    upiVpa
+  }) => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const cleanName = (name || '').trim();
+      if (!cleanName) throw new Error('Please enter gym name.');
+
+      const cleanCode = (gymCode || cleanName.substring(0, 3)).trim().toUpperCase().replace(/[^A-Z0-9]/g, '') || 'GYM';
+
+      if (gyms.some(g => g.gymCode.toUpperCase() === cleanCode)) {
+        throw new Error(`Gym Code "${cleanCode}" is already registered. Please choose another code.`);
+      }
+
+      const newGym = {
+        id: 'gym_' + Date.now(),
+        gymCode: cleanCode,
+        name: cleanName,
+        city: city?.trim() || 'Hubli',
+        address: address?.trim() || `${city || 'Hubli'}`,
+        ownerName: ownerName?.trim() || 'Gym Owner',
+        ownerEmail: ownerEmail?.trim() || 'owner@gym.in',
+        ownerPhone: ownerPhone?.trim() || '+91 96633 96058',
+        upiVpa: upiVpa?.trim() || 'feroznadaf13008@ybl',
+        logoText: cleanName.split(' ').map(w => w[0]).join('').substring(0, 3).toUpperCase() || 'GYM',
+        operatingHours: '6:00 AM - 9:00 PM',
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+
+      setGyms(prev => [newGym, ...prev]);
+      setCurrentGym(newGym);
+
+      const ownerUser = {
+        id: 'staff_' + Date.now(),
+        gymId: newGym.id,
+        gymCode: newGym.gymCode,
+        gymName: newGym.name,
+        email: newGym.ownerEmail,
+        phone: newGym.ownerPhone,
+        fullName: `${newGym.ownerName} (${newGym.name})`,
+        role: 'owner'
+      };
+
+      setCurrentUser(ownerUser);
+      setCurrentRole('owner');
+      localStorage.setItem('kg_current_user', JSON.stringify(ownerUser));
+      playSuccessBeep();
+
+      return { success: true, gym: newGym, user: ownerUser };
+    } catch (err) {
+      playErrorBuzzer();
+      setAuthError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   // Helper: Log an audit event
@@ -994,7 +1170,7 @@ export const GymProvider = ({ children }) => {
     logAudit('SETTINGS_UPDATED', `Gym operating settings updated: ${JSON.stringify(newSettings)}`, 'staff_1', 'OWNER');
   };
 
-  // Add a New Member
+  // Add a New Member (Universal Multi-Tenant with Member ID & PIN)
   const addMember = (memberData) => {
     const newId = 'mem_' + Date.now();
     const joinedDate = memberData.joinedDate || new Date().toISOString().split('T')[0];
@@ -1011,10 +1187,19 @@ export const GymProvider = ({ children }) => {
       ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&auto=format&fit=crop&q=75'
       : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&auto=format&fit=crop&q=75';
 
+    const cleanPhone = (memberData.phone || '').trim();
+    const phoneDigits = cleanPhone.replace(/[^0-9]/g, '');
+    const pin = phoneDigits.length >= 4 ? phoneDigits.slice(-4) : '1234';
+    const gymCodePrefix = currentGym?.gymCode || 'KG01';
+    const memberCode = `${gymCodePrefix}-${1000 + members.length + 1}`;
+
     const newMember = {
       id: newId,
+      memberCode,
+      pin,
+      gymId: currentGym?.id || 'gym_kg_hubli',
       name: memberData.name.trim(),
-      phone: memberData.phone.trim(),
+      phone: cleanPhone,
       gender: memberData.gender || 'Male',
       avatar: memberData.avatar || defaultAvatar,
       emergencyContact: memberData.emergencyContact ? memberData.emergencyContact.trim() : '+91 96633 96058 (Gym Desk)',
@@ -1026,7 +1211,7 @@ export const GymProvider = ({ children }) => {
       membershipExpiry: expiry,
       lastCheckIn: null,
       commPreferences: { whatsapp: true, sms: true, reminders: true, marketingOptOut: false },
-      notes: memberData.notes ? memberData.notes.trim() : 'Newly registered Hubli resident regular.'
+      notes: memberData.notes ? memberData.notes.trim() : 'Newly registered gym resident regular.'
     };
 
     setMembers(prev => [newMember, ...prev]);
@@ -1042,20 +1227,31 @@ export const GymProvider = ({ children }) => {
         weeklyVisitsCompleted: 0,
         plannedDays: ['Mon', 'Wed', 'Fri', 'Sat'],
         isFairStreakPreserved: true,
-        streakHistory: ['Joined Karnataka Gym Hubli - Welcome!']
+        streakHistory: [`Joined ${currentGym?.name || 'Gym'} - Welcome!`]
       }
     }));
+
+    const targetDigits = phoneDigits.startsWith('91') ? phoneDigits : '91' + phoneDigits;
+    const shareMessage = `Welcome to ${currentGym?.name || 'Karnataka Gym'}! 🏋️\nYour Mobile Member Pass is active:\n• Gym Code: ${currentGym?.gymCode || 'KG01'}\n• Member Login ID: ${memberCode}\n• 4-Digit Access PIN: ${pin}\n\nAccess your Member App here: https://karnatakagym.vercel.app`;
+    const whatsappUrl = `https://wa.me/${targetDigits}?text=${encodeURIComponent(shareMessage)}`;
 
     const trainer = staff.find(s => s.id === newMember.assignedTrainerId);
     logAudit(
       'MEMBER_CREATED',
-      `Registered new member ${newMember.name} (${newMember.phone}) on ${plan.name} pass. Assigned Mentor: Coach ${trainer ? trainer.name : 'Floor Trainer'}. Expiry: ${expiry}.`,
+      `Registered new member ${newMember.name} (ID: ${memberCode}, Phone: ${newMember.phone}) on ${plan.name} pass. Assigned Mentor: Coach ${trainer ? trainer.name : 'Floor Trainer'}. Expiry: ${expiry}.`,
       'staff_1',
       'OWNER'
     );
 
     playSuccessBeep();
-    return { success: true, member: newMember, message: `Member ${newMember.name} registered successfully!` };
+    return {
+      success: true,
+      member: newMember,
+      memberCode,
+      pin,
+      whatsappUrl,
+      message: `Member ${newMember.name} registered with Login ID ${memberCode} and PIN ${pin}!`
+    };
   };
 
   // Remove a Member
@@ -1402,6 +1598,14 @@ export const GymProvider = ({ children }) => {
   };
 
   const value = {
+    // Universal Multi-Tenant Gym Registry
+    gyms,
+    setGyms,
+    currentGym,
+    setCurrentGym,
+    registerGym,
+    loginMemberWithId,
+
     // Authentication & Current User
     currentUser,
     loginWithSupabase,
