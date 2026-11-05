@@ -1178,6 +1178,32 @@ export const GymProvider = ({ children }) => {
     logAudit('COMM_PREFERENCES_UPDATED', `Updated communication preferences for member ${memberId}. MarketingOptOut: ${newPrefs.marketingOptOut}`, memberId, 'MEMBER');
   };
 
+  // Update Member Profile (Avatar, Phone, Emergency Contact, Name)
+  const updateMemberProfile = (memberId, profileData) => {
+    setMembers(prev => prev.map(m => {
+      if (m.id === memberId) {
+        const updated = {
+          ...m,
+          ...profileData,
+          phone: profileData.phone !== undefined ? profileData.phone.trim() : m.phone,
+          emergencyContact: profileData.emergencyContact !== undefined ? profileData.emergencyContact.trim() : m.emergencyContact,
+          avatar: profileData.avatar || m.avatar,
+          name: profileData.name !== undefined && profileData.name.trim() ? profileData.name.trim() : m.name
+        };
+        logAudit(
+          'MEMBER_PROFILE_UPDATED',
+          `Member ${updated.name} (${memberId}) updated contact/photo. Phone: ${updated.phone}, Emergency: ${updated.emergencyContact}.`,
+          memberId,
+          'MEMBER'
+        );
+        return updated;
+      }
+      return m;
+    }));
+
+    return { success: true };
+  };
+
   // Update Gym Settings
   const updateSettings = (newSettings) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
@@ -1777,6 +1803,7 @@ export const GymProvider = ({ children }) => {
     recordFollowUpOutcome,
     toggleMembershipPause,
     updateCommPreferences,
+    updateMemberProfile,
     updateSettings,
     addPlan,
     updatePlan,
