@@ -5,6 +5,7 @@ import {
   User,
   Shield,
   ArrowRight,
+  ArrowLeft,
   AlertCircle,
   CheckCircle2,
   Phone,
@@ -16,7 +17,7 @@ import {
   CreditCard
 } from 'lucide-react';
 
-export default function MemberLogin() {
+export default function MemberLogin({ initialTab = 'member', onBack }) {
   const {
     gyms,
     currentGym,
@@ -29,7 +30,7 @@ export default function MemberLogin() {
     authLoading
   } = useGym();
 
-  const [activeTab, setActiveTab] = useState('member'); // 'member' | 'owner' | 'register_gym'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'member' | 'owner' | 'register_gym'
 
   // Member Form State
   const [selectedGymCode, setSelectedGymCode] = useState(currentGym?.gymCode || 'KG01');
@@ -155,6 +156,17 @@ export default function MemberLogin() {
   return (
     <div className="w-full max-w-md mx-auto my-3 animate-in fade-in duration-300">
       <div className="bg-[#101625] border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl text-slate-100 space-y-5">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Member App</span>
+          </button>
+        )}
+
         {/* Top Gym Identity */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 rounded-2xl bg-orange-600 text-white font-black text-xl flex items-center justify-center mx-auto shadow-lg shadow-orange-950/60 border border-orange-500">

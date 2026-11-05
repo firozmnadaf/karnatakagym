@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGym, GymProvider } from './context/GymContext';
 import MemberApp from './components/Member/MemberApp';
+import MemberLogin from './components/Auth/MemberLogin';
 import OwnerDashboard from './components/Owner/OwnerDashboard';
 import FrontDeskApp from './components/FrontDesk/FrontDeskApp';
 import AutomationsCenter from './components/Automations/AutomationsCenter';
@@ -19,7 +20,18 @@ function MainAppContent() {
       const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
       if (!rawHash) return;
 
-      const validRoles = ['member', 'owner', 'frontdesk', 'automations', 'testing', 'database'];
+      const validRoles = [
+        'member',
+        'owner',
+        'frontdesk',
+        'automations',
+        'testing',
+        'database',
+        'login',
+        'auth',
+        'register-gym',
+        'owner-login'
+      ];
       if (validRoles.includes(rawHash)) {
         setCurrentRole(rawHash);
       } else {
@@ -52,6 +64,23 @@ function MainAppContent() {
           {currentRole === 'notfound' ? (
             <div className="p-4 flex-1 flex items-center justify-center">
               <NotFound onGoHome={() => setCurrentRole(currentUser?.role === 'owner' ? 'owner' : 'member')} />
+            </div>
+          ) : ['login', 'auth', 'register-gym', 'owner-login'].includes(currentRole) ? (
+            /* Universal Gym Portals: Member Login, Owner Portal & Gym Registration */
+            <div className="p-3 flex-1 flex flex-col justify-center">
+              <MemberLogin
+                initialTab={
+                  currentRole === 'register-gym'
+                    ? 'register_gym'
+                    : currentRole === 'owner-login'
+                    ? 'owner'
+                    : 'member'
+                }
+                onBack={() => {
+                  setCurrentRole('member');
+                  window.location.hash = '#member';
+                }}
+              />
             </div>
           ) : currentRole === 'member' ? (
             /* Member Mobile Application: 100% Mobile Edge-to-Edge */

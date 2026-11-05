@@ -52,6 +52,17 @@ export default function MemberHome({ onNavigate }) {
             <div className="text-[11px] text-slate-400">
               Phone: <a href={`tel:${activeMember.phone}`} className="text-orange-400 hover:text-white font-mono">{activeMember.phone}</a>
             </div>
+            <div className="pt-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.hash = '#login';
+                }}
+                className="text-[10px] text-orange-400 hover:text-orange-300 font-bold underline"
+              >
+                Switch Account / Sign In &rarr;
+              </button>
+            </div>
           </div>
         </div>
 
